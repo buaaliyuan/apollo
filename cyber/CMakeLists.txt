@@ -1,21 +1,34 @@
 file(GLOB_RECURSE PROTO_FILES "*.proto")
 
 foreach(protofile ${PROTO_FILES})
-    message(STATUS "Processing ${protofile}")
     get_filename_component(protodir "${protofile}" DIRECTORY)
-    execute_process(COMMAND ${Protobuf_PROTOC_EXECUTABLE}
-        --cpp_out=${PROJECT_SOURCE_DIR}
-        --proto_path=${PROJECT_SOURCE_DIR}
-        ${protofile}
-        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-    )
-    #message(STATUS "== ${protofile} == ${protodir}")
-    #message(STATUS "Generated C++ files in ${PROJECT_SOURCE_DIR}")
+    get_filename_component(protoname "${protofile}" NAME_WE)
+    set(pb_h "${protodir}/${protoname}.pb.h")
+    
+    set(need_generate FALSE)
+    if(NOT EXISTS "${pb_h}")
+        set(need_generate TRUE)
+    else()
+        FILE(TIMESTAMP "${protofile}" proto_ts "%s")
+        FILE(TIMESTAMP "${pb_h}" pb_ts "%s")
+        if(proto_ts GREATER pb_ts)
+            set(need_generate TRUE)
+        endif()
+    endif()
+    
+    if(need_generate)
+        message(STATUS "Generating ${protoname}")
+        execute_process(COMMAND ${Protobuf_PROTOC_EXECUTABLE}
+            --cpp_out=${PROJECT_SOURCE_DIR}
+            --proto_path=${PROJECT_SOURCE_DIR}
+            ${protofile}
+            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+        )
+    endif()
 endforeach()
 
 set(cyber_dir_list 
     "base"
-    # "benchmark"
     "blocker"
     "class_loader"
     "common"
@@ -73,6 +86,7 @@ list(APPEND CPPS ${swap_asm})
 # filter out test files from the source list
 list(FILTER CPPS EXCLUDE REGEX ".*test\\.cc$|tcp_echo.*\\.cc$|udp_echo.*\\.cc$")
 
+
 # create the cyber shared library
 set(target_name cyber)
 add_library(${target_name} SHARED ${CPPS} ${HPPS})
@@ -86,6 +100,8 @@ target_link_libraries(${target_name} PUBLIC
     PkgConfig::UUID_LIB
     PkgConfig::TINYXML2_LIB
     PkgConfig::PYTHON3.6_LIB
+    PkgConfig::TCMALLOC_LIB
+    PkgConfig::PROFILER_LIB
     fastrtps
     fastcdr
     glog::glog
@@ -112,11 +128,23 @@ add_executable(cyber_benchmark_writer
 )
 target_link_libraries(cyber_benchmark_reader PUBLIC 
     ${target_name}
-    PkgConfig::TCMALLOC_LIB
-    PkgConfig::PROFILER_LIB
 )
 target_link_libraries(cyber_benchmark_writer PUBLIC 
     ${target_name}
-    PkgConfig::TCMALLOC_LIB
-    PkgConfig::PROFILER_LIB
+)
+
+# compile tools
+file(GLOB CYBER_MONITOR_SRCS "tools/cyber_monitor/*.cc")
+file(GLOB CYBER_MONITOR_HDRS "tools/cyber_monitor/*.h")
+add_executable(cyber_monitor ${CYBER_MONITOR_HDRS} ${CYBER_MONITOR_SRCS})
+target_link_libraries(cyber_monitor PUBLIC 
+    ${target_name}
+    PkgConfig::NCURSES_LIB
+)
+
+file(GLOB_RECURSE CYBER_REC_SRCS "tools/cyber_recorder/*.cc")
+file(GLOB_RECURSE CYBER_REC_HDRS "tools/cyber_recorder/*.h")
+add_executable(cyber_recorder ${CYBER_REC_SRCS} ${CYBER_REC_HDRS})
+target_link_libraries(cyber_recorder PUBLIC 
+    ${target_name}
 )

@@ -12,6 +12,7 @@ pkg_check_modules(TINYXML2_LIB REQUIRED IMPORTED_TARGET tinyxml2)
 pkg_check_modules(PYTHON3.6_LIB REQUIRED IMPORTED_TARGET python-3.6)
 pkg_check_modules(TCMALLOC_LIB REQUIRED IMPORTED_TARGET libtcmalloc)
 pkg_check_modules(PROFILER_LIB REQUIRED IMPORTED_TARGET libprofiler)
+pkg_check_modules(NCURSES_LIB REQUIRED IMPORTED_TARGET ncurses)
 
 
 # 在线获取第三方库，后面会被替换掉
