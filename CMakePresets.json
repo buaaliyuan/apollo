@@ -1,0 +1,27 @@
+{
+    "version": 4,
+    "configurePresets": [
+        {
+            "name": "base",
+            "hidden": true,
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "generator": "Unix Makefiles"
+        },
+        {
+            "name":"x86-ipc-release",
+            "inherits":"base",
+            "displayName": "X86 IPC release",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE":"Release",
+                "PLATFORM_TYPE": "x86_64"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name":"build-release",
+            "configurePreset": "x86-ipc-release",
+            "jobs": 10
+        }
+    ]
+}

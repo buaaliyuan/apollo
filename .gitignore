@@ -85,3 +85,8 @@ tools/FlameGraph
 modules/studio_connector
 
 #WORKSPACE
+
+*.pb.h
+*.pb.cc
+
+build
