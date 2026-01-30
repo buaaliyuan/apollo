@@ -90,3 +90,4 @@ modules/studio_connector
 *.pb.cc
 
 build
+.aem

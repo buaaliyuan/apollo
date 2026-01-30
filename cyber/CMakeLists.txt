@@ -1,32 +1,3 @@
-file(GLOB_RECURSE PROTO_FILES "*.proto")
-
-foreach(protofile ${PROTO_FILES})
-    get_filename_component(protodir "${protofile}" DIRECTORY)
-    get_filename_component(protoname "${protofile}" NAME_WE)
-    set(pb_h "${protodir}/${protoname}.pb.h")
-    
-    set(need_generate FALSE)
-    if(NOT EXISTS "${pb_h}")
-        set(need_generate TRUE)
-    else()
-        FILE(TIMESTAMP "${protofile}" proto_ts "%s")
-        FILE(TIMESTAMP "${pb_h}" pb_ts "%s")
-        if(proto_ts GREATER pb_ts)
-            set(need_generate TRUE)
-        endif()
-    endif()
-    
-    if(need_generate)
-        message(STATUS "Generating ${protoname}")
-        execute_process(COMMAND ${Protobuf_PROTOC_EXECUTABLE}
-            --cpp_out=${PROJECT_SOURCE_DIR}
-            --proto_path=${PROJECT_SOURCE_DIR}
-            ${protofile}
-            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-        )
-    endif()
-endforeach()
-
 set(cyber_dir_list 
     "base"
     "blocker"
@@ -86,16 +57,17 @@ list(APPEND CPPS ${swap_asm})
 # filter out test files from the source list
 list(FILTER CPPS EXCLUDE REGEX ".*test\\.cc$|tcp_echo.*\\.cc$|udp_echo.*\\.cc$")
 
-
 # create the cyber shared library
-set(target_name cyber)
-add_library(${target_name} SHARED ${CPPS} ${HPPS})
-set_target_properties(${target_name} PROPERTIES POSITION_INDEPENDENT_CODE ON)
-target_include_directories(${target_name} PUBLIC 
+add_library(cyberrt SHARED ${CPPS} ${HPPS})
+
+target_include_directories(cyberrt 
+PUBLIC 
     ${PROJECT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${fastrtps_INCLUDE_DIR}
 )
-target_link_libraries(${target_name} PUBLIC 
+target_link_libraries(cyberrt 
+PUBLIC
     protobuf::libprotobuf
     PkgConfig::UUID_LIB
     PkgConfig::TINYXML2_LIB
@@ -114,7 +86,7 @@ target_link_libraries(${target_name} PUBLIC
     atomic
     rt
 )
-
+set_target_properties(cyberrt PROPERTIES POSITION_INDEPENDENT_CODE ON)
 # compile benchmark
 add_executable(cyber_benchmark_reader 
     benchmark/cyber_benchmark_reader.cc
@@ -127,10 +99,10 @@ add_executable(cyber_benchmark_writer
     benchmark/benchmark_msg.pb.h
 )
 target_link_libraries(cyber_benchmark_reader PUBLIC 
-    ${target_name}
+    cyberrt
 )
 target_link_libraries(cyber_benchmark_writer PUBLIC 
-    ${target_name}
+    cyberrt
 )
 
 # compile tools
@@ -138,7 +110,7 @@ file(GLOB CYBER_MONITOR_SRCS "tools/cyber_monitor/*.cc")
 file(GLOB CYBER_MONITOR_HDRS "tools/cyber_monitor/*.h")
 add_executable(cyber_monitor ${CYBER_MONITOR_HDRS} ${CYBER_MONITOR_SRCS})
 target_link_libraries(cyber_monitor PUBLIC 
-    ${target_name}
+    cyberrt
     PkgConfig::NCURSES_LIB
 )
 
@@ -146,5 +118,5 @@ file(GLOB_RECURSE CYBER_REC_SRCS "tools/cyber_recorder/*.cc")
 file(GLOB_RECURSE CYBER_REC_HDRS "tools/cyber_recorder/*.h")
 add_executable(cyber_recorder ${CYBER_REC_SRCS} ${CYBER_REC_HDRS})
 target_link_libraries(cyber_recorder PUBLIC 
-    ${target_name}
+    cyberrt
 )
