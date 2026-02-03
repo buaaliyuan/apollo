@@ -2,10 +2,15 @@ cmake_minimum_required(VERSION 3.19)
 project(AIPilot)
 enable_language(ASM CUDA)
 
-set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH};/usr/local/fast-rtps;/opt/apollo/sysroot;/opt/apollo)
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH};/usr/local/fast-rtps;/opt/apollo/sysroot;/opt/apollo;/usr/local/libtorch_gpu;/apollo/thirdparty/install)
 set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/out/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/out/lib)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/out/lib)
+
+
 include(cmake/find_thirdparty.cmake)
 
 # process all the proto files
@@ -38,7 +43,10 @@ foreach(protofile ${PROTO_FILES})
 endforeach()
 
 # add global include directories
-include_directories(${CMAKE_SOURCE_DIR})
+include_directories(
+    ${CMAKE_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}/third_party/tf2/include
+)
 
 # compile subdirectories
 add_subdirectory(cyber)
@@ -48,3 +56,12 @@ add_subdirectory(modules/common)
 add_subdirectory(modules/bridge)
 add_subdirectory(modules/canbus)
 add_subdirectory(modules/canbus_vehicle)
+add_subdirectory(modules/control/control_component)
+add_subdirectory(modules/control/control_task_base_extend)
+add_subdirectory(modules/control/controllers)
+add_subdirectory(modules/data)
+# add_subdirectory(modules/dreamview)
+# add_subdirectory(modules/dreamview_plus)
+add_subdirectory(modules/drivers)
+
+add_subdirectory(third_party/tf2)

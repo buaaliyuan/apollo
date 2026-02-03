@@ -27,7 +27,7 @@
 #include <utility>
 #include <vector>
 
-#include "gtest/gtest_prod.h"
+// #include "gtest/gtest_prod.h"
 #include "modules/common/monitor_log/monitor_logger.h"
 #include "modules/common_msgs/monitor_msgs/monitor_log.pb.h"
 
@@ -106,9 +106,10 @@ class MonitorLogBuffer {
   std::vector<MessageItem> monitor_msg_items_;
   MonitorMessageItem::MessageSource source_;
 
-  FRIEND_TEST(MonitorBufferTest, RegisterMacro);
-  FRIEND_TEST(MonitorBufferTest, AddMonitorMsgItem);
-  FRIEND_TEST(MonitorBufferTest, Operator);
+  //解除gtest依赖
+  // FRIEND_TEST(MonitorBufferTest, RegisterMacro);
+  // FRIEND_TEST(MonitorBufferTest, AddMonitorMsgItem);
+  // FRIEND_TEST(MonitorBufferTest, Operator);
 };
 
 }  // namespace monitor

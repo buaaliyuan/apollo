@@ -79,12 +79,12 @@ PUBLIC
     glog::glog
     gflags
     Boost::filesystem
-    gtest
-    gmock
+    GTest::gtest
     nlohmann_json
     bvar::bvar
     atomic
     rt
+    absl::strings #为了方便，要不每个module都要添加
 )
 set_target_properties(cyberrt PROPERTIES POSITION_INDEPENDENT_CODE ON)
 # compile benchmark

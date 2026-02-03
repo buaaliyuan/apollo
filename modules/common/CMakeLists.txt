@@ -13,5 +13,6 @@ target_link_libraries(common PUBLIC
     Eigen3::Eigen
     nlohmann_json
     osqp::osqp
+    sqlite3
 )
 set_target_properties(common PROPERTIES POSITION_INDEPENDENT_CODE ON)

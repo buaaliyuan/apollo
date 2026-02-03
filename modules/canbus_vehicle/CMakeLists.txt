@@ -14,3 +14,4 @@ target_link_libraries(apollo_canbus_vehicle_wey PUBLIC
     common
 )
 
+# todo 添加更多的车型库
