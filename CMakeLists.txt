@@ -65,3 +65,13 @@ add_subdirectory(modules/data)
 add_subdirectory(modules/drivers)
 
 add_subdirectory(third_party/tf2)
+add_subdirectory(modules/external_command)
+add_subdirectory(modules/guardian)
+add_subdirectory(modules/localization)
+add_subdirectory(modules/monitor)
+add_subdirectory(modules/map)
+add_subdirectory(modules/planning)
+add_subdirectory(modules/prediction)
+add_subdirectory(modules/prediction_plugin)
+
+add_subdirectory(modules/transform)

@@ -14,5 +14,6 @@ target_link_libraries(common PUBLIC
     nlohmann_json
     osqp::osqp
     sqlite3
+    common_msg
 )
 set_target_properties(common PROPERTIES POSITION_INDEPENDENT_CODE ON)
