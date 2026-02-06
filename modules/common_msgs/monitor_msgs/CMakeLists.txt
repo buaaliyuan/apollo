@@ -1,0 +1,4 @@
+# monitor_msgs proto targets
+apollo_proto_library(NAME system_status_cc_proto SRCS system_status.proto DEPS header_cc_proto)
+apollo_proto_library(NAME monitor_log_cc_proto SRCS monitor_log.proto DEPS header_cc_proto)
+apollo_proto_library(NAME smart_recorder_status_cc_proto SRCS smart_recorder_status.proto DEPS header_cc_proto)

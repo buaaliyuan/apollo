@@ -1,0 +1,4 @@
+# statistics_msgs proto targets
+apollo_proto_library(NAME resource_statistic_cc_proto SRCS resource_statistic.proto DEPS header_cc_proto)
+apollo_proto_library(NAME process_statistic_cc_proto SRCS process_statistic.proto DEPS header_cc_proto)
+apollo_proto_library(NAME latency_statistic_cc_proto SRCS latency_statistic.proto DEPS header_cc_proto)

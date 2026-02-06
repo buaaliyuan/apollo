@@ -102,7 +102,7 @@ bool WriterHandle::Write(const std::shared_ptr<T>& message) {
   return Write(*message);
 }
 
-void WriterHandle::WriteLastMessage() {
+inline void WriterHandle::WriteLastMessage() {
   if (write_history_function_) {
     write_history_function_();
   }

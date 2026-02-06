@@ -1,0 +1,57 @@
+# modules/common/math
+add_subdirectory(qp_solver)
+
+apollo_cc_library(
+    NAME common_math
+    SRCS
+        aabox2d.cc
+        angle.cc
+        box2d.cc
+        cartesian_frenet_conversion.cc
+        integral.cc
+        line_segment2d.cc
+        linear_interpolation.cc
+        linear_quadratic_regulator.cc
+        math_utils.cc
+        matrix_operations.cc
+        mpc_osqp.cc
+        path_matcher.cc
+        polygon2d.cc
+        search.cc
+        sin_table.cc
+        vec2d.cc
+    HDRS
+        aabox2d.h
+        aaboxkdtree2d.h
+        angle.h
+        box2d.h
+        cartesian_frenet_conversion.h
+        curve_fitting.h
+        euler_angles_zxy.h
+        factorial.h
+        hermite_spline.h
+        integral.h
+        kalman_filter.h
+        line_segment2d.h
+        linear_interpolation.h
+        linear_quadratic_regulator.h
+        math_utils.h
+        matrix_operations.h
+        mpc_osqp.h
+        path_matcher.h
+        polygon2d.h
+        quaternion.h
+        search.h
+        sin_table.h
+        vec2d.h
+    DEPS
+        cyber
+        util_tool
+        qp_solver
+        geometry_cc_proto
+        pnc_point_cc_proto
+        absl
+        eigen
+        osqp
+    LINKOPTS -lm
+)

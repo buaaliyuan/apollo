@@ -1,0 +1,25 @@
+# map_msgs proto targets
+apollo_proto_library(NAME map_id_cc_proto SRCS map_id.proto)
+apollo_proto_library(NAME map_geometry_cc_proto SRCS map_geometry.proto DEPS geometry_cc_proto)
+apollo_proto_library(NAME map_lane_cc_proto SRCS map_lane.proto DEPS map_geometry_cc_proto map_id_cc_proto)
+apollo_proto_library(NAME map_road_cc_proto SRCS map_road.proto DEPS map_geometry_cc_proto map_id_cc_proto)
+apollo_proto_library(NAME map_overlap_cc_proto SRCS map_overlap.proto DEPS map_geometry_cc_proto map_id_cc_proto)
+apollo_proto_library(NAME map_junction_cc_proto SRCS map_junction.proto DEPS map_geometry_cc_proto map_id_cc_proto)
+apollo_proto_library(NAME map_signal_cc_proto SRCS map_signal.proto DEPS map_geometry_cc_proto map_id_cc_proto geometry_cc_proto)
+apollo_proto_library(NAME map_stop_sign_cc_proto SRCS map_stop_sign.proto DEPS map_geometry_cc_proto map_id_cc_proto)
+apollo_proto_library(NAME map_yield_sign_cc_proto SRCS map_yield_sign.proto DEPS map_geometry_cc_proto map_id_cc_proto)
+apollo_proto_library(NAME map_crosswalk_cc_proto SRCS map_crosswalk.proto DEPS map_geometry_cc_proto map_id_cc_proto)
+apollo_proto_library(NAME map_clear_area_cc_proto SRCS map_clear_area.proto DEPS map_geometry_cc_proto map_id_cc_proto)
+apollo_proto_library(NAME map_speed_bump_cc_proto SRCS map_speed_bump.proto DEPS map_geometry_cc_proto map_id_cc_proto)
+apollo_proto_library(NAME map_parking_space_cc_proto SRCS map_parking_space.proto DEPS map_geometry_cc_proto map_id_cc_proto)
+apollo_proto_library(NAME map_pnc_junction_cc_proto SRCS map_pnc_junction.proto DEPS map_geometry_cc_proto map_id_cc_proto)
+apollo_proto_library(NAME map_rsu_cc_proto SRCS map_rsu.proto DEPS map_id_cc_proto)
+apollo_proto_library(NAME map_speed_control_cc_proto SRCS map_speed_control.proto DEPS map_geometry_cc_proto)
+apollo_proto_library(NAME map_area_cc_proto SRCS map_area.proto DEPS map_geometry_cc_proto map_id_cc_proto geometry_cc_proto)
+apollo_proto_library(NAME map_barrier_gate_cc_proto SRCS map_barrier_gate.proto DEPS map_geometry_cc_proto map_id_cc_proto geometry_cc_proto)
+apollo_proto_library(NAME map_cc_proto SRCS map.proto
+    DEPS map_clear_area_cc_proto map_crosswalk_cc_proto map_junction_cc_proto
+         map_lane_cc_proto map_overlap_cc_proto map_parking_space_cc_proto
+         map_pnc_junction_cc_proto map_road_cc_proto map_rsu_cc_proto
+         map_signal_cc_proto map_speed_bump_cc_proto map_stop_sign_cc_proto
+         map_yield_sign_cc_proto map_area_cc_proto map_barrier_gate_cc_proto)
