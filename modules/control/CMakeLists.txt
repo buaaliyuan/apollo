@@ -41,20 +41,24 @@ apollo_proto_library(
 apollo_proto_library(
     NAME control_debug_cc_proto
     SRCS control_component/proto/control_debug.proto
-    DEPS header_cc_proto chassis_cc_proto
+    DEPS header_cc_proto geometry_cc_proto pnc_point_cc_proto
+         control_cmd_cc_proto control_interactive_msg_cc_proto
+         check_status_cc_proto perception_obstacle_cc_proto
+         routing_geometry_cc_proto
 )
 
 apollo_proto_library(
     NAME preprocessor_cc_proto
     SRCS control_component/proto/preprocessor.proto
-    DEPS header_cc_proto local_view_cc_proto
+    DEPS header_cc_proto drive_state_cc_proto input_debug_cc_proto
+         local_view_cc_proto
 )
 
 apollo_proto_library(
     NAME local_view_cc_proto
     SRCS control_component/proto/local_view.proto
-    DEPS chassis_cc_proto planning_cc_proto localization_cc_proto
-         control_pad_msg_cc_proto control_cmd_cc_proto
+    DEPS header_cc_proto chassis_cc_proto planning_cc_proto
+         localization_cc_proto control_pad_msg_cc_proto
 )
 
 apollo_proto_library(
@@ -66,7 +70,7 @@ apollo_proto_library(
 apollo_proto_library(
     NAME calibration_debug_cc_proto
     SRCS control_component/proto/calibration_debug.proto
-    DEPS calibration_table_cc_proto
+    DEPS header_cc_proto calibration_table_cc_proto
 )
 
 # ── Proto (control_task_base_extend/proto/) ──

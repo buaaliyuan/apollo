@@ -16,19 +16,19 @@ apollo_proto_library(
 apollo_proto_library(
     NAME measure_cc_proto
     SRCS proto/measure.proto
-    DEPS localization_cc_proto gnss_raw_observation_cc_proto
+    DEPS header_cc_proto geometry_cc_proto localization_cc_proto gnss_raw_observation_cc_proto
 )
 
 apollo_proto_library(
     NAME sins_pva_cc_proto
     SRCS proto/sins_pva.proto
-    DEPS geometry_cc_proto
+    DEPS header_cc_proto geometry_cc_proto
 )
 
 apollo_proto_library(
     NAME gnss_pnt_result_cc_proto
     SRCS proto/gnss_pnt_result.proto
-    DEPS header_cc_proto geometry_cc_proto
+    DEPS gnss_raw_observation_cc_proto
 )
 
 # ── localization_gflags ──

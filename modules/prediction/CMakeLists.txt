@@ -33,13 +33,16 @@ apollo_proto_library(
 apollo_proto_library(
     NAME prediction_conf_cc_proto
     SRCS proto/prediction_conf.proto
-    DEPS prediction_obstacle_cc_proto
+    DEPS perception_obstacle_cc_proto feature_cc_proto
+         prediction_obstacle_cc_proto
 )
 
 apollo_proto_library(
     NAME offline_features_cc_proto
     SRCS proto/offline_features.proto
-    DEPS prediction_obstacle_cc_proto
+    DEPS pnc_point_cc_proto feature_cc_proto
+         prediction_conf_cc_proto prediction_scenario_cc_proto
+         prediction_obstacle_cc_proto
 )
 
 # ── apollo_prediction_network library ──

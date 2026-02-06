@@ -44,33 +44,7 @@ apollo_proto_library(
     DEPS plugin_declare_info_cc_proto
 )
 
-apollo_proto_library(
-    NAME reference_line_smoother_config_cc_proto
-    SRCS planning_base/proto/reference_line_smoother_config.proto
-    DEPS piecewise_jerk_path_config_cc_proto
-)
-
-apollo_proto_library(
-    NAME auto_tuning_raw_feature_cc_proto
-    SRCS planning_base/proto/auto_tuning_raw_feature.proto
-    DEPS auto_tuning_model_input_cc_proto
-)
-
-apollo_proto_library(
-    NAME planning_status_cc_proto
-    SRCS planning_base/proto/planning_status.proto
-    DEPS geometry_cc_proto routing_cc_proto map_id_cc_proto
-)
-
-apollo_proto_library(
-    NAME learning_data_cc_proto
-    SRCS planning_base/proto/learning_data.proto
-    DEPS geometry_cc_proto pnc_point_cc_proto
-         perception_obstacle_cc_proto traffic_light_detection_cc_proto
-         routing_cc_proto planning_cc_proto chassis_cc_proto
-)
-
-# ── Proto (planning_base/proto/math/) ──
+# ── Proto (planning_base/proto/math/) ── (must be before reference_line_smoother_config)
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/planning_base/proto/math")
     file(GLOB _math_protos planning_base/proto/math/*.proto)
     foreach(_p ${_math_protos})
@@ -81,6 +55,37 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/planning_base/proto/math")
         )
     endforeach()
 endif()
+
+apollo_proto_library(
+    NAME reference_line_smoother_config_cc_proto
+    SRCS planning_base/proto/reference_line_smoother_config.proto
+    DEPS planning_math_cos_theta_smoother_config_cc_proto
+         planning_math_fem_pos_deviation_smoother_config_cc_proto
+)
+
+apollo_proto_library(
+    NAME auto_tuning_raw_feature_cc_proto
+    SRCS planning_base/proto/auto_tuning_raw_feature.proto
+    DEPS pnc_point_cc_proto auto_tuning_model_input_cc_proto
+)
+
+apollo_proto_library(
+    NAME planning_status_cc_proto
+    SRCS planning_base/proto/planning_status.proto
+    DEPS geometry_cc_proto routing_cc_proto map_id_cc_proto
+         lane_follow_command_cc_proto
+)
+
+apollo_proto_library(
+    NAME learning_data_cc_proto
+    SRCS planning_base/proto/learning_data.proto
+    DEPS header_cc_proto geometry_cc_proto pnc_point_cc_proto
+         map_lane_cc_proto
+         perception_obstacle_cc_proto traffic_light_detection_cc_proto
+         feature_cc_proto prediction_obstacle_cc_proto
+         routing_cc_proto routing_geometry_cc_proto
+         planning_cc_proto chassis_cc_proto
+)
 
 # ── Proto (planning_base/learning_based/model_inference/proto/) ──
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/planning_base/learning_based/model_inference/proto")
@@ -347,6 +352,7 @@ foreach(_planner ${_PLANNER_DIRS})
             set(_planner_proto_deps "")
             if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/planners/${_planner}/proto")
                 file(GLOB _pp planners/${_planner}/proto/*.proto)
+                # First pass: create all proto targets
                 foreach(_pf ${_pp})
                     get_filename_component(_pfn ${_pf} NAME_WE)
                     apollo_proto_library(
@@ -355,6 +361,23 @@ foreach(_planner ${_PLANNER_DIRS})
                         DEPS ${_PLANNING_BASE_PROTO_DEPS}
                     )
                     list(APPEND _planner_proto_deps planner_${_planner}_${_pfn}_cc_proto)
+                endforeach()
+                # Second pass: parse intra-directory imports and add one-directional deps
+                foreach(_pf ${_pp})
+                    get_filename_component(_pfn ${_pf} NAME_WE)
+                    set(_this_target planner_${_planner}_${_pfn}_cc_proto)
+                    # Read the proto file and find intra-directory imports
+                    file(READ ${_pf} _proto_content)
+                    foreach(_other_pf ${_pp})
+                        if(NOT "${_other_pf}" STREQUAL "${_pf}")
+                            get_filename_component(_other_pfn ${_other_pf} NAME_WE)
+                            # Check if this proto imports the other
+                            string(FIND "${_proto_content}" "${_other_pfn}.proto" _import_pos)
+                            if(NOT _import_pos EQUAL -1)
+                                add_dependencies(${_this_target} planner_${_planner}_${_other_pfn}_cc_proto)
+                            endif()
+                        endif()
+                    endforeach()
                 endforeach()
             endif()
 
