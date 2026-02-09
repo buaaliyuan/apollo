@@ -37,30 +37,10 @@ apollo_proto_library(
     DEPS header_cc_proto
 )
 
-# ── lidar protos ──
-apollo_proto_library(
-    NAME drivers_lidar_config_cc_proto
-    SRCS lidar/proto/config.proto
-)
+# ── lidar protos (leaf protos — no deps) ──
 apollo_proto_library(
     NAME drivers_lidar_parameter_cc_proto
     SRCS lidar/proto/lidar_parameter.proto
-)
-apollo_proto_library(
-    NAME drivers_velodyne_config_cc_proto
-    SRCS lidar/proto/velodyne_config.proto
-)
-apollo_proto_library(
-    NAME drivers_velodyne_cc_proto
-    SRCS lidar/proto/velodyne.proto
-)
-apollo_proto_library(
-    NAME drivers_hesai_config_cc_proto
-    SRCS lidar/proto/hesai_config.proto
-)
-apollo_proto_library(
-    NAME drivers_hesai_cc_proto
-    SRCS lidar/proto/hesai.proto
 )
 apollo_proto_library(
     NAME drivers_lidar_common_config_base_cc_proto
@@ -74,41 +54,78 @@ apollo_proto_library(
     NAME drivers_fusion_config_cc_proto
     SRCS lidar/fusion/proto/fusion_config.proto
 )
+# ── lidar protos (depend on header_cc_proto) ──
 apollo_proto_library(
-    NAME drivers_hslidar_hesai_config_cc_proto
-    SRCS lidar/hslidar/proto/hesai_config.proto
+    NAME drivers_velodyne_cc_proto
+    SRCS lidar/proto/velodyne.proto
+    DEPS header_cc_proto
+)
+apollo_proto_library(
+    NAME drivers_hesai_cc_proto
+    SRCS lidar/proto/hesai.proto
+    DEPS header_cc_proto
 )
 apollo_proto_library(
     NAME drivers_hslidar_hesai_cc_proto
     SRCS lidar/hslidar/proto/hesai.proto
-)
-apollo_proto_library(
-    NAME drivers_livox_cc_proto
-    SRCS lidar/livox/proto/livox.proto
-)
-apollo_proto_library(
-    NAME drivers_lslidar_config_cc_proto
-    SRCS lidar/lslidar/proto/config.proto
+    DEPS header_cc_proto
 )
 apollo_proto_library(
     NAME drivers_lslidar_cc_proto
     SRCS lidar/lslidar/proto/lslidar.proto
-)
-apollo_proto_library(
-    NAME drivers_rslidar_config_cc_proto
-    SRCS lidar/rslidar/proto/rslidar_config.proto
+    DEPS header_cc_proto
 )
 apollo_proto_library(
     NAME drivers_rslidar_cc_proto
     SRCS lidar/rslidar/proto/rslidar.proto
-)
-apollo_proto_library(
-    NAME drivers_vanjeelidar_config_cc_proto
-    SRCS lidar/vanjeelidar/proto/vanjeelidar_config.proto
+    DEPS header_cc_proto
 )
 apollo_proto_library(
     NAME drivers_vanjeelidar_cc_proto
     SRCS lidar/vanjeelidar/proto/vanjeelidar.proto
+    DEPS header_cc_proto
+)
+# ── lidar protos (depend on other driver protos) ──
+apollo_proto_library(
+    NAME drivers_velodyne_config_cc_proto
+    SRCS lidar/proto/velodyne_config.proto
+    DEPS drivers_velodyne_cc_proto
+)
+apollo_proto_library(
+    NAME drivers_hesai_config_cc_proto
+    SRCS lidar/proto/hesai_config.proto
+    DEPS drivers_hesai_cc_proto
+)
+apollo_proto_library(
+    NAME drivers_hslidar_hesai_config_cc_proto
+    SRCS lidar/hslidar/proto/hesai_config.proto
+    DEPS drivers_hslidar_hesai_cc_proto drivers_lidar_common_config_base_cc_proto
+)
+apollo_proto_library(
+    NAME drivers_livox_cc_proto
+    SRCS lidar/livox/proto/livox.proto
+    DEPS drivers_lidar_common_config_base_cc_proto
+)
+apollo_proto_library(
+    NAME drivers_lslidar_config_cc_proto
+    SRCS lidar/lslidar/proto/config.proto
+    DEPS drivers_lslidar_cc_proto drivers_lidar_common_config_base_cc_proto
+)
+apollo_proto_library(
+    NAME drivers_rslidar_config_cc_proto
+    SRCS lidar/rslidar/proto/rslidar_config.proto
+    DEPS drivers_lidar_common_config_base_cc_proto
+)
+apollo_proto_library(
+    NAME drivers_vanjeelidar_config_cc_proto
+    SRCS lidar/vanjeelidar/proto/vanjeelidar_config.proto
+    DEPS drivers_lidar_common_config_base_cc_proto
+)
+# ── lidar protos (depend on config protos) ──
+apollo_proto_library(
+    NAME drivers_lidar_config_cc_proto
+    SRCS lidar/proto/config.proto
+    DEPS drivers_hesai_config_cc_proto drivers_velodyne_config_cc_proto drivers_lidar_parameter_cc_proto
 )
 
 # ── lidar_fusion_and_compensator proto ──
@@ -121,10 +138,12 @@ apollo_proto_library(
 apollo_proto_library(
     NAME drivers_conti_radar_conf_cc_proto
     SRCS radar/conti_radar/proto/conti_radar_conf.proto
+    DEPS conti_radar_cc_proto can_card_parameter_cc_proto
 )
 apollo_proto_library(
     NAME drivers_nano_radar_conf_cc_proto
     SRCS radar/nano_radar/proto/nano_radar_conf.proto
+    DEPS nano_radar_cc_proto can_card_parameter_cc_proto
 )
 apollo_proto_library(
     NAME drivers_oculii_radar_conf_cc_proto
@@ -133,10 +152,12 @@ apollo_proto_library(
 apollo_proto_library(
     NAME drivers_racobit_radar_conf_cc_proto
     SRCS radar/racobit_radar/proto/racobit_radar_conf.proto
+    DEPS racobit_radar_cc_proto can_card_parameter_cc_proto
 )
 apollo_proto_library(
     NAME drivers_ultrasonic_radar_conf_cc_proto
     SRCS radar/ultrasonic_radar/proto/ultrasonic_radar_conf.proto
+    DEPS can_card_parameter_cc_proto
 )
 
 # ── smartereye proto ──

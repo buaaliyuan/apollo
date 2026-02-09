@@ -144,7 +144,15 @@ message(STATUS "Found Boost: ${Boost_VERSION}")
 # 9. yaml-cpp
 # Mirrors: third_party/yaml_cpp/yaml_cpp.BUILD
 # ============================================================================
-find_package(yaml-cpp QUIET)
+find_package(yaml-cpp QUIET
+    PATHS
+        ${CMAKE_SOURCE_DIR}/thirdparty/install/lib/cmake/yaml-cpp
+        /usr/local/lib/cmake/yaml-cpp
+    NO_DEFAULT_PATH
+)
+if(NOT yaml-cpp_FOUND)
+    find_package(yaml-cpp QUIET)
+endif()
 if(NOT yaml-cpp_FOUND)
     find_package(PkgConfig QUIET)
     if(PkgConfig_FOUND)
@@ -155,7 +163,12 @@ if(NOT yaml-cpp_FOUND)
         target_include_directories(yaml-cpp INTERFACE ${YAMLCPP_INCLUDE_DIRS})
         target_link_libraries(yaml-cpp INTERFACE ${YAMLCPP_LIBRARIES})
     else()
-        if(EXISTS "${CMAKE_SOURCE_DIR}/thirdparty/yaml-cpp-yaml-cpp-0.6.3/CMakeLists.txt")
+        if(EXISTS "${CMAKE_SOURCE_DIR}/thirdparty/install/include/yaml-cpp/yaml.h")
+            add_library(yaml-cpp INTERFACE)
+            target_include_directories(yaml-cpp INTERFACE ${CMAKE_SOURCE_DIR}/thirdparty/install/include)
+            target_link_libraries(yaml-cpp INTERFACE ${CMAKE_SOURCE_DIR}/thirdparty/install/lib/libyaml-cpp.a)
+            message(STATUS "yaml-cpp: ${CMAKE_SOURCE_DIR}/thirdparty/install")
+        elseif(EXISTS "${CMAKE_SOURCE_DIR}/thirdparty/yaml-cpp-yaml-cpp-0.6.3/CMakeLists.txt")
             set(YAML_CPP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
             set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
             add_subdirectory(${CMAKE_SOURCE_DIR}/thirdparty/yaml-cpp-yaml-cpp-0.6.3

@@ -148,7 +148,7 @@ function(apollo_component)
     cmake_parse_arguments(ARG
         ""
         "NAME"
-        "SRCS;HDRS;DEPS;COPTS"
+        "SRCS;HDRS;DEPS;COPTS;LINKOPTS"
         ${ARGN}
     )
 
@@ -172,6 +172,10 @@ function(apollo_component)
     endif()
     if(ARG_COPTS)
         target_compile_options(${_tgt_name} PRIVATE ${ARG_COPTS})
+    endif()
+    if(ARG_LINKOPTS)
+        target_link_options(${_tgt_name} PRIVATE ${ARG_LINKOPTS})
+        target_link_libraries(${_tgt_name} PRIVATE ${ARG_LINKOPTS})
     endif()
 endfunction()
 
