@@ -4,6 +4,40 @@
 # ============================================================================
 
 # ──────────────────────────────────────────────
+# _apollo_compute_install_dir(<out_var> <srcs_list>)
+#
+# Computes the install destination directory for a target based on the
+# source-relative path of its first source file.  This ensures that
+# built .so / binary files end up at the paths expected by DAG files.
+#
+# Example:
+#   CMakeLists.txt in modules/drivers/
+#   SRCS = lidar/velodyne/driver/velodyne_driver_component.cc
+#   → install dir = modules/drivers/lidar/velodyne/driver
+# ──────────────────────────────────────────────
+function(_apollo_compute_install_dir out_var srcs)
+    file(RELATIVE_PATH _module_rel "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}")
+    if(srcs)
+        list(GET srcs 0 _first_src)
+        # Handle absolute paths (e.g. from file(GLOB ...))
+        if(IS_ABSOLUTE "${_first_src}")
+            file(RELATIVE_PATH _src_rel "${CMAKE_SOURCE_DIR}" "${_first_src}")
+            get_filename_component(_dest "${_src_rel}" DIRECTORY)
+        else()
+            get_filename_component(_src_subdir "${_first_src}" DIRECTORY)
+            if(_src_subdir)
+                set(_dest "${_module_rel}/${_src_subdir}")
+            else()
+                set(_dest "${_module_rel}")
+            endif()
+        endif()
+    else()
+        set(_dest "${_module_rel}")
+    endif()
+    set(${out_var} "${_dest}" PARENT_SCOPE)
+endfunction()
+
+# ──────────────────────────────────────────────
 # apollo_cc_library(
 #     NAME <target_name>
 #     SRCS <source_files...>
@@ -90,6 +124,12 @@ function(apollo_cc_binary)
         # AFTER object files on the linker command line (left-to-right rule).
         target_link_libraries(${ARG_NAME} PRIVATE ${ARG_LINKOPTS})
     endif()
+
+    # Install binary to source-relative path
+    _apollo_compute_install_dir(_install_dir "${ARG_SRCS}")
+    install(TARGETS ${ARG_NAME}
+        RUNTIME DESTINATION "${_install_dir}"
+    )
 endfunction()
 
 # ──────────────────────────────────────────────
@@ -147,7 +187,7 @@ endfunction()
 function(apollo_component)
     cmake_parse_arguments(ARG
         ""
-        "NAME"
+        "NAME;INSTALL_DIR"
         "SRCS;HDRS;DEPS;COPTS;LINKOPTS"
         ${ARGN}
     )
@@ -177,6 +217,16 @@ function(apollo_component)
         target_link_options(${_tgt_name} PRIVATE ${ARG_LINKOPTS})
         target_link_libraries(${_tgt_name} PRIVATE ${ARG_LINKOPTS})
     endif()
+
+    # Install to source-relative path so DAG files work without modification
+    if(ARG_INSTALL_DIR)
+        set(_install_dir "${ARG_INSTALL_DIR}")
+    else()
+        _apollo_compute_install_dir(_install_dir "${ARG_SRCS}")
+    endif()
+    install(TARGETS ${_tgt_name}
+        LIBRARY DESTINATION "${_install_dir}"
+    )
 endfunction()
 
 # ──────────────────────────────────────────────
@@ -193,7 +243,7 @@ endfunction()
 function(apollo_plugin)
     cmake_parse_arguments(ARG
         ""
-        "NAME"
+        "NAME;INSTALL_DIR"
         "SRCS;HDRS;DEPS;COPTS"
         ${ARGN}
     )
@@ -218,6 +268,16 @@ function(apollo_plugin)
     if(ARG_COPTS)
         target_compile_options(${_tgt_name} PRIVATE ${ARG_COPTS})
     endif()
+
+    # Install to source-relative path (same logic as apollo_component)
+    if(ARG_INSTALL_DIR)
+        set(_install_dir "${ARG_INSTALL_DIR}")
+    else()
+        _apollo_compute_install_dir(_install_dir "${ARG_SRCS}")
+    endif()
+    install(TARGETS ${_tgt_name}
+        LIBRARY DESTINATION "${_install_dir}"
+    )
 endfunction()
 
 # ──────────────────────────────────────────────

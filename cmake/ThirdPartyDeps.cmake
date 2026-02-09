@@ -421,7 +421,7 @@ foreach(_torch_hint /usr/local/libtorch_gpu /usr/local/libtorch_cpu /usr/local/l
 endforeach()
 find_package(Torch QUIET)
 if(Torch_FOUND)
-    message(STATUS "Found Torch: ${Torch_VERSION} (${Torch_DIR})")
+    message(STATUS "===Found Torch: ${Torch_VERSION} (${Torch_DIR})")
 else()
     message(STATUS "LibTorch: not found")
 endif()
@@ -488,7 +488,7 @@ endif()
 # Mirrors: third_party/grpc
 # ============================================================================
 # ── grpc_cpp_plugin ──
-# Search: 1) our install prefix, 2) Bazel cache, 3) system
+# Search: 1) our install prefix, 2) system
 find_program(GRPC_CPP_PLUGIN grpc_cpp_plugin
     PATHS
         ${CMAKE_SOURCE_DIR}/thirdparty/install/bin
@@ -496,13 +496,7 @@ find_program(GRPC_CPP_PLUGIN grpc_cpp_plugin
     NO_DEFAULT_PATH
 )
 if(NOT GRPC_CPP_PLUGIN)
-    # Fallback: Bazel cache
-    file(GLOB_RECURSE _bazel_grpc_plugin
-        "${CMAKE_SOURCE_DIR}/.cache/bazel/*/execroot/apollo/bazel-out/host/bin/external/com_github_grpc_grpc/src/compiler/grpc_cpp_plugin"
-    )
-    if(_bazel_grpc_plugin)
-        list(GET _bazel_grpc_plugin 0 GRPC_CPP_PLUGIN)
-    endif()
+    find_program(GRPC_CPP_PLUGIN grpc_cpp_plugin)
 endif()
 find_library(GRPC_LIB grpc++ PATHS
     ${CMAKE_SOURCE_DIR}/thirdparty/install/lib
@@ -644,22 +638,16 @@ if(APOLLO_USE_GPU)
     # ── PaddlePaddle Inference ──
     # Code uses: #include "paddle/include/paddle_inference_api.h"
     # So include root must be the parent of "paddle/" directory.
-    # Search: 1) APOLLO_SYSROOT, 2) Bazel external cache (project migrated from Bazel)
+    # Search: 1) thirdparty/paddleinference (installed by install_thirdparty.sh)
+    #         2) APOLLO_SYSROOT
     set(_PADDLE_INC_ROOT "")
     set(_PADDLE_LIB_DIR "")
-    if(EXISTS "${APOLLO_SYSROOT}/paddle/include/paddle_inference_api.h")
+    if(EXISTS "${CMAKE_SOURCE_DIR}/thirdparty/paddleinference/paddle/include/paddle_inference_api.h")
+        set(_PADDLE_INC_ROOT "${CMAKE_SOURCE_DIR}/thirdparty/paddleinference")
+        set(_PADDLE_LIB_DIR "${CMAKE_SOURCE_DIR}/thirdparty/paddleinference/paddle/lib")
+    elseif(EXISTS "${APOLLO_SYSROOT}/paddle/include/paddle_inference_api.h")
         set(_PADDLE_INC_ROOT "${APOLLO_SYSROOT}")
         set(_PADDLE_LIB_DIR "${APOLLO_SYSROOT}/paddle/lib")
-    else()
-        file(GLOB _paddle_cache_dirs
-            "${CMAKE_SOURCE_DIR}/.cache/bazel/*/external/paddleinference-x86_64")
-        if(_paddle_cache_dirs)
-            list(GET _paddle_cache_dirs 0 _paddle_ext_dir)
-            if(EXISTS "${_paddle_ext_dir}/paddle/include/paddle_inference_api.h")
-                set(_PADDLE_INC_ROOT "${_paddle_ext_dir}")
-                set(_PADDLE_LIB_DIR "${_paddle_ext_dir}/paddle/lib")
-            endif()
-        endif()
     endif()
     if(_PADDLE_INC_ROOT)
         add_library(paddle_inference INTERFACE)

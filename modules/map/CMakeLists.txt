@@ -107,6 +107,7 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/relative_map/relative_map_component.cc")
             apollo_map
             cyber
         COPTS -DMODULE_NAME="map"
+        INSTALL_DIR modules/map
     )
 endif()
 

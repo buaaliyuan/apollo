@@ -465,12 +465,23 @@ install_grpc() {
             fi
         done
 
-        # Copy grpc_cpp_plugin from Bazel cache if it exists
-        local _plugin
-        _plugin=$(find "${APOLLO_ROOT}/.cache" -name "grpc_cpp_plugin" -type f 2>/dev/null | head -1)
-        if [[ -n "${_plugin}" ]]; then
-            cp "${_plugin}" "${PREFIX}/bin/grpc_cpp_plugin"
-            chmod +x "${PREFIX}/bin/grpc_cpp_plugin"
+        # Copy grpc_cpp_plugin from backup or build tree if available
+        if [[ ! -f "${PREFIX}/bin/grpc_cpp_plugin" ]]; then
+            local _plugin=""
+            for _ppath in \
+                "${APOLLO_ROOT}/thirdparty_backup/install/bin/grpc_cpp_plugin" \
+                "${APOLLO_ROOT}/thirdparty_backup/grpc-1.30.0/bins/opt/grpc_cpp_plugin"; do
+                if [[ -f "${_ppath}" ]]; then
+                    _plugin="${_ppath}"
+                    break
+                fi
+            done
+            if [[ -n "${_plugin}" ]]; then
+                cp "${_plugin}" "${PREFIX}/bin/grpc_cpp_plugin"
+                chmod +x "${PREFIX}/bin/grpc_cpp_plugin"
+            else
+                log_warn "grpc_cpp_plugin not found in backup; will be built in Strategy B if needed"
+            fi
         fi
 
         _install_grpc_headers
@@ -642,7 +653,75 @@ _create_grpc_fat_archive() {
 }
 
 # ############################################################################
-# 7. localization_msf (pre-built binary package)
+# 7. PaddlePaddle Inference (pre-built binary package)
+# Source: third_party/paddleinference/workspace.bzl
+# Downloads pre-built PaddleInference with CUDA 11.1 support
+# ############################################################################
+install_paddleinference() {
+    log_info "=== PaddlePaddle Inference ==="
+
+    local dest="${APOLLO_ROOT}/thirdparty/paddleinference"
+
+    # Check if already installed
+    if [[ -f "${dest}/paddle/include/paddle_inference_api.h" ]] && \
+       [[ -f "${dest}/paddle/lib/libpaddle_inference.so" ]]; then
+        log_info "PaddleInference already installed at ${dest}"
+        return 0
+    fi
+
+    # Architecture-dependent download
+    local arch
+    arch="$(uname -m)"
+    local url sha tar_name
+
+    if [[ "${arch}" == "x86_64" ]]; then
+        url="https://apollo-pkg-beta.cdn.bcebos.com/archive/paddleinference-cu111-x86.tar.gz"
+        sha="ed4f9b5757a81351e869d31e8371393340fdfd183b83a8e532a6b2951dfae8c4"
+        tar_name="paddleinference-cu111-x86.tar.gz"
+    elif [[ "${arch}" == "aarch64" ]]; then
+        url="https://apollo-pkg-beta.bj.bcebos.com/archive/paddleinference-linux-aarch64-2.0.0.tar.gz"
+        sha="ac5f124650e61d8d4b3552cf070258bc2464293bc31d7416ee99e9ba9693e3ee"
+        tar_name="paddleinference-aarch64.tar.gz"
+    else
+        log_error "Unsupported architecture for PaddleInference: ${arch}"
+        return 1
+    fi
+
+    local tar="${DL_DIR}/${tar_name}"
+    download_archive "${url}" "${sha}" "${tar}"
+
+    log_info "Extracting PaddleInference ..."
+    mkdir -p "${dest}"
+
+    # Tarball has a top-level 'paddleinference/' prefix (strip_prefix in Bazel)
+    # After stripping, it contains: paddle/ third_party/ version.txt BUILD WORKSPACE CMakeCache.txt
+    local tmpdir="${SRC_DIR}/_paddle_tmp"
+    rm -rf "${tmpdir}"
+    mkdir -p "${tmpdir}"
+    tar -xf "${tar}" -C "${tmpdir}"
+
+    # Move contents: the tarball extracts to tmpdir/paddleinference/
+    if [[ -d "${tmpdir}/paddleinference" ]]; then
+        cp -a "${tmpdir}/paddleinference/." "${dest}/"
+    else
+        # Fallback: maybe no top-level dir
+        cp -a "${tmpdir}/." "${dest}/"
+    fi
+    rm -rf "${tmpdir}"
+
+    # Verify installation
+    if [[ -f "${dest}/paddle/include/paddle_inference_api.h" ]]; then
+        log_info "PaddleInference installed at ${dest}"
+        log_info "  Include: ${dest}/paddle/include/"
+        log_info "  Lib:     ${dest}/paddle/lib/"
+    else
+        log_error "PaddleInference installation failed - paddle_inference_api.h not found"
+        return 1
+    fi
+}
+
+# ############################################################################
+# 8. localization_msf (pre-built binary package)
 # Source: third_party/localization_msf/workspace.bzl
 # ############################################################################
 install_localization_msf() {
@@ -713,6 +792,7 @@ main() {
     install_gtest
     install_ad_rss
     install_grpc
+    install_paddleinference
     install_localization_msf
 
     log_info "============================================"
@@ -727,8 +807,9 @@ main() {
     log_info "  bin/      - civetweb, grpc_cpp_plugin"
     log_info ""
     log_info "Also:"
-    log_info "  thirdparty/grpc-1.30.0/     - gRPC headers"
-    log_info "  thirdparty/localization_msf/ - MSF binary package"
+    log_info "  thirdparty/grpc-1.30.0/       - gRPC headers"
+    log_info "  thirdparty/paddleinference/   - PaddleInference (paddle/include, paddle/lib)"
+    log_info "  thirdparty/localization_msf/  - MSF binary package"
     log_info "============================================"
 }
 

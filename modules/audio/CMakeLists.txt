@@ -2,12 +2,13 @@
 # modules/audio/CMakeLists.txt
 # ============================================================================
 
+# 第三方库在ThirdPartyDeps.cmake中已经查找
 # Audio module requires libtorch (ATen) – skip if not available
-find_library(TORCH_LIB torch PATHS /opt/apollo/sysroot/lib /usr/local/lib)
-if(NOT TORCH_LIB)
-    message(STATUS "Audio module SKIPPED (libtorch not found)")
-    return()
-endif()
+# find_library(TORCH_LIB torch PATHS /opt/apollo/sysroot/lib /usr/local/lib)
+# if(NOT TORCH_LIB)
+#     message(STATUS "Audio module SKIPPED (libtorch not found)")
+#     return()
+# endif()
 
 # ── Proto ──
 apollo_proto_library(
@@ -42,6 +43,7 @@ apollo_cc_library(
         yaml-cpp
         eigen
         fftw3
+        ${TORCH_LIBRARIES}
     LINKOPTS -fopenmp
     COPTS -DMODULE_NAME="audio"
 )

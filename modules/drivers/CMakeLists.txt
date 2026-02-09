@@ -448,6 +448,7 @@ apollo_component(
         pointcloud_cc_proto
     COPTS -DMODULE_NAME="hesai" -fopenmp
     LINKOPTS -lgomp -lssl -lpthread -lm -lhesai2-driver
+    INSTALL_DIR modules/drivers/lidar/hslidar
 )
 
 # ── LSLidar ──
@@ -501,6 +502,7 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/lidar/lslidar/component/lslidar_component
             cyber
         COPTS -DMODULE_NAME="lslidar"
         LINKOPTS -lpcap
+        INSTALL_DIR modules/drivers/lidar/lslidar
     )
 endif()
 
@@ -516,6 +518,7 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/lidar/rslidar/driver/rslidar_component.cp
             lidar_common
         COPTS -DMODULE_NAME="rslidar"
         LINKOPTS -lpcap
+        INSTALL_DIR modules/drivers/lidar/rslidar
     )
 endif()
 
@@ -532,6 +535,7 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/lidar/livox/component/livox_component.cpp
             lidar_common
         COPTS -DMODULE_NAME="livox"
         LINKOPTS -llivox_lidar_sdk_shared
+        INSTALL_DIR modules/drivers/lidar/livox
     )
 endif()
 
@@ -546,6 +550,7 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/lidar/vanjeelidar/src/vanjeelidar_compone
             drivers_vanjeelidar_cc_proto
             lidar_common
         COPTS -DMODULE_NAME="vanjeelidar"
+        INSTALL_DIR modules/drivers/lidar/vanjeelidar
     )
 endif()
 

@@ -11,7 +11,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Build output directories
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/static_lib)
 
 # ──────────────────────────────────────────────
 # Options
@@ -79,3 +79,45 @@ endif()
 if(APOLLO_BUILD_MODULES)
     add_subdirectory(modules)
 endif()
+
+# ──────────────────────────────────────────────
+# Install rules
+# ──────────────────────────────────────────────
+# Default install prefix: /apollo (matches DAG relative paths)
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    set(CMAKE_INSTALL_PREFIX "/apollo" CACHE PATH "Install prefix" FORCE)
+endif()
+
+# Install libcyber.so to lib/ (shared runtime library)
+if(APOLLO_BUILD_CYBER)
+    install(TARGETS cyber
+        LIBRARY DESTINATION lib
+    )
+endif()
+
+# Install conf / dag / launch data files preserving source-relative paths
+# so that DAG module_library paths and config_file_path references work.
+install(DIRECTORY modules/
+    DESTINATION modules
+    FILES_MATCHING
+        PATTERN "*.dag"
+        PATTERN "*.launch"
+        PATTERN "*.conf"
+        PATTERN "*.pb.txt"
+        PATTERN "*.pt"        # model files
+)
+
+# Install cyber conf and tools
+install(DIRECTORY cyber/conf/
+    DESTINATION cyber/conf
+)
+install(FILES cyber/setup.bash
+    DESTINATION cyber
+)
+install(DIRECTORY scripts/
+    DESTINATION scripts
+)
+
+install(DIRECTORY cyber/tools/
+    DESTINATION cyber/tools
+)

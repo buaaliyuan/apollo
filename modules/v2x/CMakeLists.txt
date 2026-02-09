@@ -148,6 +148,7 @@ apollo_component(
     SRCS fusion/apps/v2x_fusion_component.cc
     HDRS fusion/apps/v2x_fusion_component.h
     DEPS apollo_v2x
+    INSTALL_DIR modules/v2x
 )
 
 # ── v2x binary ──
