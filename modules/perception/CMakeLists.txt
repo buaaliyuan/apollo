@@ -151,6 +151,62 @@ if(NOT APOLLO_USE_GPU)
     list(FILTER _perception_inference_srcs EXCLUDE REGEX ".*torch_net.*\\.cc$")
     list(FILTER _perception_inference_srcs EXCLUDE REGEX ".*inference_factory\\.cc$")
     list(FILTER _perception_inference_srcs EXCLUDE REGEX ".*inference\\.cc$")
+else()
+    # GPU is ON but some backends may not be installed – exclude missing ones
+    if(NOT TARGET tensorrt)
+        message(STATUS "perception: TensorRT not found, excluding tensorrt backend")
+        list(FILTER _perception_inference_srcs EXCLUDE REGEX ".*tensorrt.*\\.cc$")
+        list(FILTER _perception_inference_srcs EXCLUDE REGEX ".*cal_table_generator.*\\.cc$")
+        list(FILTER _perception_inference_srcs EXCLUDE REGEX ".*denseline_sample.*\\.cc$")
+        list(FILTER _perception_inference_srcs EXCLUDE REGEX ".*lane_sample.*\\.cc$")
+        list(FILTER _perception_inference_srcs EXCLUDE REGEX ".*yolo_sample.*\\.cc$")
+    endif()
+    if(NOT TARGET paddle_inference)
+        message(STATUS "perception: PaddlePaddle not found, excluding paddle backend")
+        list(FILTER _perception_inference_srcs EXCLUDE REGEX ".*paddlepaddle.*\\.cc$")
+    endif()
+    find_path(_migraphx_inc migraphx/argument.hpp)
+    if(NOT _migraphx_inc)
+        message(STATUS "perception: MIGraphX not found, excluding migraphx backend")
+        list(FILTER _perception_inference_srcs EXCLUDE REGEX ".*migraphx.*\\.cc$")
+    endif()
+    if(NOT Torch_FOUND)
+        message(STATUS "perception: LibTorch not found, excluding libtorch/onnx backends")
+        list(FILTER _perception_inference_srcs EXCLUDE REGEX ".*libtorch.*\\.cc$")
+        list(FILTER _perception_inference_srcs EXCLUDE REGEX ".*onnx.*\\.cc$")
+        list(FILTER _perception_inference_srcs EXCLUDE REGEX ".*torch_net.*\\.cc$")
+        list(FILTER _perception_inference_srcs EXCLUDE REGEX ".*inference_factory\\.cc$")
+        list(FILTER _perception_inference_srcs EXCLUDE REGEX ".*inference\\.cc$")
+    endif()
+endif()
+
+# Collect optional GPU deps for inference target
+set(_inference_gpu_deps)
+set(_inference_gpu_incdirs)
+if(APOLLO_USE_GPU)
+    if(Torch_FOUND)
+        list(APPEND _inference_gpu_deps ${TORCH_LIBRARIES})
+        list(APPEND _inference_gpu_incdirs ${TORCH_INCLUDE_DIRS})
+        # Torch headers transitively include Python.h
+        find_package(PythonLibs QUIET)
+        if(PYTHONLIBS_FOUND)
+            list(APPEND _inference_gpu_incdirs ${PYTHON_INCLUDE_DIRS})
+        endif()
+    endif()
+    if(TARGET tensorrt)
+        list(APPEND _inference_gpu_deps tensorrt)
+    endif()
+    if(TARGET cudnn)
+        list(APPEND _inference_gpu_deps cudnn)
+    endif()
+    if(TARGET paddle_inference)
+        list(APPEND _inference_gpu_deps paddle_inference)
+    endif()
+    if(TARGET npp)
+        list(APPEND _inference_gpu_deps npp)
+    endif()
+    list(APPEND _inference_gpu_deps ${CUDA_LIBRARIES} ${CUDA_CUBLAS_LIBRARIES})
+    list(APPEND _inference_gpu_incdirs ${CUDA_INCLUDE_DIRS})
 endif()
 
 apollo_cc_library(
@@ -166,8 +222,14 @@ apollo_cc_library(
         protobuf::libprotobuf
         eigen
         absl
+        ${_inference_gpu_deps}
     COPTS -DMODULE_NAME="perception"
 )
+
+# Add GPU include directories to inference target
+if(_inference_gpu_incdirs)
+    target_include_directories(apollo_perception_common_inference PUBLIC ${_inference_gpu_incdirs})
+endif()
 
 # ── perception common/lib ──
 file(GLOB_RECURSE _perception_lib_srcs common/lib/*.cc)
@@ -298,7 +360,7 @@ macro(perception_submodule _name)
     list(FILTER _sm_srcs EXCLUDE REGEX ".*/testdata/.*")
 
     # Exclude CUDA-dependent source files when GPU is not available
-    if(NOT GPU_PLATFORM)
+    if(NOT APOLLO_USE_GPU)
         # Camera tracking
         list(FILTER _sm_srcs EXCLUDE REGEX ".*project_feature\\.cc$")
         # Lane detection CUDA detectors

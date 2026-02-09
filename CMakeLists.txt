@@ -16,7 +16,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 # ──────────────────────────────────────────────
 # Options
 # ──────────────────────────────────────────────
-option(APOLLO_USE_GPU    "Enable GPU (CUDA) support"          OFF)
+option(APOLLO_USE_GPU    "Enable GPU (CUDA) support"          ON)
 option(APOLLO_BUILD_TESTS "Build unit tests"                  OFF)
 option(APOLLO_BUILD_CYBER   "Build CyberRT module"              ON)
 option(APOLLO_BUILD_MODULES "Build Apollo modules"              ON)
@@ -42,6 +42,8 @@ if(APOLLO_USE_GPU)
     enable_language(CUDA)
     find_package(CUDA REQUIRED)
     add_compile_definitions(USE_GPU=1)
+    include_directories(${CUDA_INCLUDE_DIRS})
+    message(STATUS "CUDA include dirs: ${CUDA_INCLUDE_DIRS}")
 endif()
 
 # ──────────────────────────────────────────────

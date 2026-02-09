@@ -339,6 +339,42 @@ add_library(portaudio INTERFACE)
 target_link_libraries(portaudio INTERFACE -lportaudio)
 
 # ============================================================================
+# 24b. rtklib  (third_party/rtklib – compiled from C sources)
+# ============================================================================
+add_library(rtklib STATIC
+    ${CMAKE_SOURCE_DIR}/third_party/rtklib/novatel.c
+    ${CMAKE_SOURCE_DIR}/third_party/rtklib/rcvraw.c
+    ${CMAKE_SOURCE_DIR}/third_party/rtklib/rtcm.c
+    ${CMAKE_SOURCE_DIR}/third_party/rtklib/rtcm3.c
+    ${CMAKE_SOURCE_DIR}/third_party/rtklib/rtkcmn.c
+)
+target_include_directories(rtklib PUBLIC ${CMAKE_SOURCE_DIR}/third_party/rtklib)
+set_target_properties(rtklib PROPERTIES LINKER_LANGUAGE C)
+
+# ============================================================================
+# 24c. adv_plat (camera capture library, x86_64 only)
+# ============================================================================
+set(_ADV_PLAT_DIR "/opt/apollo/pkgs/adv_plat")
+if(EXISTS "${_ADV_PLAT_DIR}")
+    add_library(adv_plat INTERFACE)
+    target_include_directories(adv_plat INTERFACE ${_ADV_PLAT_DIR}/include)
+    target_link_directories(adv_plat INTERFACE ${_ADV_PLAT_DIR}/lib)
+    target_link_libraries(adv_plat INTERFACE -ladv_trigger)
+endif()
+
+# ============================================================================
+# 24d. nvidia_ml (NVML for GPU stats, optional)
+# ============================================================================
+if(APOLLO_USE_GPU AND EXISTS "/usr/local/cuda/targets/x86_64-linux/lib/stubs/libnvidia-ml.so")
+    add_library(nvidia_ml INTERFACE)
+    target_include_directories(nvidia_ml INTERFACE /usr/local/cuda/targets/x86_64-linux/include)
+    target_link_directories(nvidia_ml INTERFACE /usr/local/cuda/targets/x86_64-linux/lib/stubs)
+    target_link_libraries(nvidia_ml INTERFACE -lnvidia-ml)
+else()
+    add_library(nvidia_ml INTERFACE)
+endif()
+
+# ============================================================================
 # 25. OpenGL / GLEW
 # ============================================================================
 find_package(OpenGL QUIET)
@@ -363,9 +399,18 @@ endif()
 # ============================================================================
 # 28. libtorch
 # ============================================================================
+# Search common libtorch install paths in the container
+foreach(_torch_hint /usr/local/libtorch_gpu /usr/local/libtorch_cpu /usr/local/libtorch)
+    if(EXISTS "${_torch_hint}/share/cmake/Torch/TorchConfig.cmake")
+        set(Torch_DIR "${_torch_hint}/share/cmake/Torch" CACHE PATH "Torch cmake dir" FORCE)
+        break()
+    endif()
+endforeach()
 find_package(Torch QUIET)
 if(Torch_FOUND)
-    message(STATUS "Found Torch: ${Torch_VERSION}")
+    message(STATUS "Found Torch: ${Torch_VERSION} (${Torch_DIR})")
+else()
+    message(STATUS "LibTorch: not found")
 endif()
 
 # ============================================================================
@@ -429,14 +474,18 @@ endif()
 # 34. gRPC  (for map/datachecker, v2x, etc.)
 # Mirrors: third_party/grpc
 # ============================================================================
+# ── grpc_cpp_plugin ──
+# Search: 1) our install prefix, 2) Bazel cache, 3) system
 find_program(GRPC_CPP_PLUGIN grpc_cpp_plugin
-    PATHS /usr/local/bin /usr/bin
-          /opt/apollo/sysroot/bin
+    PATHS
+        ${CMAKE_SOURCE_DIR}/thirdparty/install/bin
+        /usr/local/bin
+    NO_DEFAULT_PATH
 )
-# Also search Bazel cache if not found
 if(NOT GRPC_CPP_PLUGIN)
+    # Fallback: Bazel cache
     file(GLOB_RECURSE _bazel_grpc_plugin
-        "${CMAKE_SOURCE_DIR}/.cache/bazel/*/execroot/*/bazel-out/host/bin/external/com_github_grpc_grpc/src/compiler/grpc_cpp_plugin"
+        "${CMAKE_SOURCE_DIR}/.cache/bazel/*/execroot/apollo/bazel-out/host/bin/external/com_github_grpc_grpc/src/compiler/grpc_cpp_plugin"
     )
     if(_bazel_grpc_plugin)
         list(GET _bazel_grpc_plugin 0 GRPC_CPP_PLUGIN)
@@ -448,7 +497,10 @@ find_library(GRPC_LIB grpc++ PATHS
     /usr/lib/x86_64-linux-gnu)
 # Find gRPC include directory
 set(GRPC_INCLUDE_DIR "")
-foreach(_grpc_inc /apollo/thirdparty/grpc-1.30.0/include /usr/local/include)
+foreach(_grpc_inc
+    ${CMAKE_SOURCE_DIR}/thirdparty/grpc-1.30.0/include
+    ${CMAKE_SOURCE_DIR}/thirdparty/install/grpc_install/include
+    /usr/local/include)
     if(EXISTS "${_grpc_inc}/grpc/grpc.h")
         set(GRPC_INCLUDE_DIR "${_grpc_inc}")
         break()
@@ -538,37 +590,87 @@ endif()
 
 # ============================================================================
 # GPU-specific dependencies (conditional)
+# Mirrors: third_party/tensorrt, third_party/paddleinference, third_party/npp,
+#          third_party/nvjpeg
 # ============================================================================
 if(APOLLO_USE_GPU)
     enable_language(CUDA)
     find_package(CUDA REQUIRED)
 
-    if(EXISTS "/usr/include/NvInfer.h")
+    # ── TensorRT ──
+    # Headers may live in /usr/include/x86_64-linux-gnu on Debian multiarch
+    find_path(_TENSORRT_INC NvInfer.h
+        PATHS /usr/include /usr/include/x86_64-linux-gnu /usr/local/include
+        NO_DEFAULT_PATH)
+    find_library(_TENSORRT_NVINFER nvinfer
+        PATHS /usr/lib/x86_64-linux-gnu /usr/lib /usr/local/lib
+        NO_DEFAULT_PATH)
+    if(_TENSORRT_INC AND _TENSORRT_NVINFER)
         add_library(tensorrt INTERFACE)
-        target_link_libraries(tensorrt INTERFACE -lnvinfer -lnvonnxparser -lnvparsers)
-        message(STATUS "Found TensorRT")
+        target_include_directories(tensorrt INTERFACE ${_TENSORRT_INC})
+        get_filename_component(_TENSORRT_LIB_DIR ${_TENSORRT_NVINFER} DIRECTORY)
+        target_link_directories(tensorrt INTERFACE ${_TENSORRT_LIB_DIR})
+        target_link_libraries(tensorrt INTERFACE -lnvinfer -lnvonnxparser -lnvparsers -lnvinfer_plugin)
+        message(STATUS "Found TensorRT: ${_TENSORRT_INC} (lib: ${_TENSORRT_NVINFER})")
+    else()
+        message(STATUS "TensorRT: not found")
     endif()
 
-    find_library(CUDNN_LIBRARY cudnn PATHS ${CUDA_TOOLKIT_ROOT_DIR}/lib64)
+    # ── cuDNN ──
+    find_library(CUDNN_LIBRARY cudnn
+        PATHS ${CUDA_TOOLKIT_ROOT_DIR}/lib64 /usr/lib/x86_64-linux-gnu /usr/local/cuda/lib64
+        NO_DEFAULT_PATH)
     if(CUDNN_LIBRARY)
         add_library(cudnn INTERFACE)
         target_link_libraries(cudnn INTERFACE ${CUDNN_LIBRARY})
         message(STATUS "Found cuDNN: ${CUDNN_LIBRARY}")
+    else()
+        message(STATUS "cuDNN: not found")
     endif()
 
-    if(EXISTS "${APOLLO_SYSROOT}/include/paddle")
+    # ── PaddlePaddle Inference ──
+    # Code uses: #include "paddle/include/paddle_inference_api.h"
+    # So include root must be the parent of "paddle/" directory.
+    # Search: 1) APOLLO_SYSROOT, 2) Bazel external cache (project migrated from Bazel)
+    set(_PADDLE_INC_ROOT "")
+    set(_PADDLE_LIB_DIR "")
+    if(EXISTS "${APOLLO_SYSROOT}/paddle/include/paddle_inference_api.h")
+        set(_PADDLE_INC_ROOT "${APOLLO_SYSROOT}")
+        set(_PADDLE_LIB_DIR "${APOLLO_SYSROOT}/paddle/lib")
+    else()
+        file(GLOB _paddle_cache_dirs
+            "${CMAKE_SOURCE_DIR}/.cache/bazel/*/external/paddleinference-x86_64")
+        if(_paddle_cache_dirs)
+            list(GET _paddle_cache_dirs 0 _paddle_ext_dir)
+            if(EXISTS "${_paddle_ext_dir}/paddle/include/paddle_inference_api.h")
+                set(_PADDLE_INC_ROOT "${_paddle_ext_dir}")
+                set(_PADDLE_LIB_DIR "${_paddle_ext_dir}/paddle/lib")
+            endif()
+        endif()
+    endif()
+    if(_PADDLE_INC_ROOT)
         add_library(paddle_inference INTERFACE)
-        target_include_directories(paddle_inference INTERFACE ${APOLLO_SYSROOT}/include)
-        target_link_directories(paddle_inference INTERFACE ${APOLLO_SYSROOT}/lib)
+        target_include_directories(paddle_inference INTERFACE ${_PADDLE_INC_ROOT})
+        target_link_directories(paddle_inference INTERFACE ${_PADDLE_LIB_DIR})
         target_link_libraries(paddle_inference INTERFACE -lpaddle_inference)
-        message(STATUS "Found PaddleInference")
+        message(STATUS "Found PaddleInference: ${_PADDLE_INC_ROOT}")
+    else()
+        message(STATUS "PaddleInference: not found")
     endif()
 
+    # ── NPP (NVIDIA Performance Primitives) ──
     add_library(npp INTERFACE)
     target_link_libraries(npp INTERFACE -lnppc -lnppig -lnppial -lnppist -lnppidei)
+    if(EXISTS "${CUDA_TOOLKIT_ROOT_DIR}/targets/x86_64-linux/lib")
+        target_link_directories(npp INTERFACE ${CUDA_TOOLKIT_ROOT_DIR}/targets/x86_64-linux/lib)
+    endif()
 
+    # ── nvjpeg ──
     add_library(nvjpeg INTERFACE)
     target_link_libraries(nvjpeg INTERFACE -lnvjpeg)
+    if(EXISTS "${CUDA_TOOLKIT_ROOT_DIR}/targets/x86_64-linux/lib")
+        target_link_directories(nvjpeg INTERFACE ${CUDA_TOOLKIT_ROOT_DIR}/targets/x86_64-linux/lib)
+    endif()
 endif()
 
 # ============================================================================

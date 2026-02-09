@@ -13,7 +13,7 @@ add_subdirectory(common)
 
 # ── Level-1: Core infrastructure (no inter-module deps) ──
 add_subdirectory(transform)
-add_subdirectory(drivers)          # drivers/canbus base library
+add_subdirectory(drivers)          # drivers/canbus base library + all driver components
 
 # ── Level-2: Depends on transform/drivers ──
 add_subdirectory(map)
@@ -24,6 +24,7 @@ add_subdirectory(guardian)
 add_subdirectory(bridge)
 add_subdirectory(storytelling)
 add_subdirectory(canbus)
+add_subdirectory(canbus_vehicle)   # vehicle CAN plugins (ch, devkit, ge3, etc.)
 add_subdirectory(audio)
 add_subdirectory(third_party_perception)
 
@@ -45,3 +46,7 @@ add_subdirectory(dreamview_plus)
 # ── Level-7: Monitor & Task Manager (depend on dreamview) ──
 add_subdirectory(monitor)
 add_subdirectory(task_manager)
+
+# ── Level-8: Statistics & contrib ──
+add_subdirectory(statistics)
+add_subdirectory(contrib)
