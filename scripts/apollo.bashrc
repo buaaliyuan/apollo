@@ -22,7 +22,8 @@ APOLLO_IN_DOCKER=false
 # If inside docker container
 if [ -f /.dockerenv ]; then
   APOLLO_IN_DOCKER=true
-  APOLLO_ROOT_DIR="/apollo"
+  # APOLLO_ROOT_DIR="/apollo"
+  APOLLO_ROOT_DIR="/apollo/output" # 修改为安装目录
 fi
 
 export APOLLO_CONFIG_HOME="${APOLLO_CONFIG_HOME:=$HOME/.apollo}"
@@ -32,7 +33,8 @@ export APOLLO_CACHE_DIR="${APOLLO_ROOT_DIR}/.cache"
 export APOLLO_SYSROOT_DIR="/opt/apollo/sysroot"
 
 export APOLLO_DAG_PATH="${APOLLO_ROOT_DIR}"
-export APOLLO_LIB_PATH="${APOLLO_ROOT_DIR}/bazel-bin"
+# export APOLLO_LIB_PATH="${APOLLO_ROOT_DIR}/bazel-bin"
+export APOLLO_LIB_PATH="${APOLLO_ROOT_DIR}" # dag动态库加载路径修改
 export APOLLO_CONF_PATH="${APOLLO_ROOT_DIR}"
 export APOLLO_FLAG_PATH="${APOLLO_ROOT_DIR}"
 export APOLLO_LAUNCH_PATH="${APOLLO_ROOT_DIR}"
@@ -348,6 +350,9 @@ if ${APOLLO_IN_DOCKER}; then
   setup_gpu_support
 
   # add dreamview path
-  pathprepend ${APOLLO_ROOT_DIR}/bazel-bin/modules/dreamview
-  pathprepend ${APOLLO_ROOT_DIR}/bazel-bin/modules/dreamview_plus
+  # pathprepend ${APOLLO_ROOT_DIR}/bazel-bin/modules/dreamview
+  # pathprepend ${APOLLO_ROOT_DIR}/bazel-bin/modules/dreamview_plus
+  # 修改dream的目录
+  pathprepend ${APOLLO_ROOT_DIR}/modules/dreamview
+  pathprepend ${APOLLO_ROOT_DIR}/modules/dreamview_plus
 fi

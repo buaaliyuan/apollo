@@ -291,3 +291,6 @@ apollo_cc_binary(
     SRCS examples/common_component_example/channel_prediction_writer.cc
     DEPS cyber examples_cc_proto
 )
+
+# ── Python wrappers (CPython C extensions) ────────────────────────
+add_subdirectory(python)
