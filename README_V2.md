@@ -1,19 +1,15 @@
-## 第三方库安装
-1. ./scripts/install_thirdparty.sh
-   1. install_thirdparty.sh脚本提取了apollo项目下WORKSPACE和third_party下的bazel定义的内容
-   2. 安装完成后生成thirdparty路径
-   
+
 ## 编译方法
 1. 启动docker环境
    1. ./docker/scripts/dev_start.sh
 2. 进入docker环境
    1. ./docker/scripts/dev_into.sh
-3. 安装第三方库（x86，根据apollo的third_party中的安装过程生成)
+3. 安装第三方库，安装为/apollo/thirdparty目录
    1. /apollo/scripts/install_thirdparty.sh
 4. 编译(进入docker环境)
-   1. mkdir build;cd build;cmake ..;make -j10
+   1. mkdir build;cd build;cmake -DCMAKE_INSTALL_PREFIX=/apollo/output -DAPOLLO_USE_GPU=ON ..;make -j15;make install
 5. 编译产物
-   1. 编译产物集中生成在build下的bin和lib目录下
+   1. 编译产物集中生成在/apollo/output
 
 
 ## 第三方库
