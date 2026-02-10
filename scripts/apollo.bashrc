@@ -353,6 +353,6 @@ if ${APOLLO_IN_DOCKER}; then
   # pathprepend ${APOLLO_ROOT_DIR}/bazel-bin/modules/dreamview
   # pathprepend ${APOLLO_ROOT_DIR}/bazel-bin/modules/dreamview_plus
   # 修改dream的目录
-  pathprepend ${APOLLO_ROOT_DIR}/modules/dreamview
-  pathprepend ${APOLLO_ROOT_DIR}/modules/dreamview_plus
+  pathprepend ${APOLLO_ROOT_DIR}/output/modules/dreamview
+  pathprepend ${APOLLO_ROOT_DIR}/output/modules/dreamview_plus
 fi

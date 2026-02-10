@@ -12,11 +12,6 @@
 #   _cyber_parameter_wrapper.so <- py_parameter.cc
 # ============================================================================
 
-# ── Find Python3 ─────────────────────────────────────────────────
-find_package(PythonLibs 3 REQUIRED)
-find_package(PythonInterp 3 REQUIRED)
-message(STATUS "Python3 include: ${PYTHON_INCLUDE_DIRS}")
-message(STATUS "Python3 library: ${PYTHON_LIBRARIES}")
 
 # Get the Python extension suffix (e.g. .cpython-36m-x86_64-linux-gnu.so)
 execute_process(

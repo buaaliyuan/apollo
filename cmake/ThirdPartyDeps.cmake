@@ -690,3 +690,8 @@ else()
     message(STATUS "localization_msf: not found")
 endif()
 
+# ── Find Python3 ─────────────────────────────────────────────────
+find_package(PythonLibs 3 REQUIRED)
+find_package(PythonInterp 3 REQUIRED)
+message(STATUS "Python3 include: ${PYTHON_INCLUDE_DIRS}")
+message(STATUS "Python3 library: ${PYTHON_LIBRARIES}")
