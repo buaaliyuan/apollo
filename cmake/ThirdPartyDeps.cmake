@@ -70,7 +70,7 @@ endif()
 # Mirrors: third_party/gtest
 # ============================================================================
 # gtest headers are needed even in non-test builds (for FRIEND_TEST macro)
-set(GTEST_INCLUDE_DIR "/usr/src/googletest/googletest/include" CACHE PATH "")
+set(GTEST_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/thirdparty/install/include" CACHE PATH "")
 if(EXISTS "${GTEST_INCLUDE_DIR}/gtest/gtest.h")
     add_library(gtest_headers INTERFACE)
     target_include_directories(gtest_headers INTERFACE ${GTEST_INCLUDE_DIR})

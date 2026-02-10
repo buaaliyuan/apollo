@@ -120,4 +120,33 @@ install(DIRECTORY scripts/
 
 install(DIRECTORY cyber/tools/
     DESTINATION cyber/tools
+    FILES_MATCHING
+        PATTERN "*.py" EXCLUDE
+)
+
+# Install Python tools without .py extension and with executable permissions
+install(PROGRAMS
+    cyber/tools/cyber_performance/cyber_performance.py
+    DESTINATION cyber/tools
+    RENAME cyber_performance
+)
+install(PROGRAMS
+    cyber/tools/cyber_node/cyber_node.py
+    DESTINATION cyber/tools
+    RENAME cyber_node
+)
+install(PROGRAMS
+    cyber/tools/cyber_channel/cyber_channel.py
+    DESTINATION cyber/tools
+    RENAME cyber_channel
+)
+install(PROGRAMS
+    cyber/tools/cyber_service/cyber_service.py
+    DESTINATION cyber/tools
+    RENAME cyber_service
+)
+install(PROGRAMS
+    cyber/tools/cyber_launch/cyber_launch.py
+    DESTINATION cyber/tools
+    RENAME cyber_launch
 )
