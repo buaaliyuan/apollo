@@ -20,6 +20,7 @@ option(APOLLO_USE_GPU    "Enable GPU (CUDA) support"          ON)
 option(APOLLO_BUILD_TESTS "Build unit tests"                  OFF)
 option(APOLLO_BUILD_CYBER   "Build CyberRT module"              ON)
 option(APOLLO_BUILD_MODULES "Build Apollo modules"              ON)
+option(APOLLO_BUILD_FRONTEND "Build frontend (dreamview/dreamview_plus)" OFF)
 
 # ──────────────────────────────────────────────
 # Global compile flags

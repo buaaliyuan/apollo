@@ -136,3 +136,25 @@ apollo_cc_binary(
     DEPS cyber apollo_dreamview_plus_backend
     LINKOPTS -ltcmalloc -lprofiler
 )
+
+# ── Frontend build (optional, controlled by APOLLO_BUILD_FRONTEND option) ──
+if(APOLLO_BUILD_FRONTEND)
+    message(STATUS "Building dreamview_plus frontend...")
+    add_custom_target(dreamview_plus_frontend ALL
+        COMMAND cd ${CMAKE_CURRENT_SOURCE_DIR}/frontend && yarn web:build
+        COMMENT "Building dreamview_plus frontend with yarn"
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/frontend
+    )
+    add_dependencies(dreamview_plus dreamview_plus_frontend)
+else()
+    message(STATUS "Skipping dreamview_plus frontend build (use -DAPOLLO_BUILD_FRONTEND=ON to enable)")
+endif()
+
+# ── Install frontend dist files ──
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/frontend/dist)
+    install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/frontend/dist/
+        DESTINATION modules/dreamview_plus/frontend/dist
+        FILES_MATCHING
+            PATTERN "*"
+    )
+endif()

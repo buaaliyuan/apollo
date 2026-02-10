@@ -239,3 +239,25 @@ apollo_cc_binary(
     SRCS main.cc
     DEPS cyber apollo_dreamview_backend
 )
+
+# ── Frontend build (optional, controlled by APOLLO_BUILD_FRONTEND option) ──
+if(APOLLO_BUILD_FRONTEND)
+    message(STATUS "Building dreamview frontend...")
+    add_custom_target(dreamview_frontend ALL
+        COMMAND cd ${CMAKE_CURRENT_SOURCE_DIR}/frontend && npm run build
+        COMMENT "Building dreamview frontend with npm"
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/frontend
+    )
+    add_dependencies(dreamview dreamview_frontend)
+else()
+    message(STATUS "Skipping dreamview frontend build (use -DAPOLLO_BUILD_FRONTEND=ON to enable)")
+endif()
+
+# ── Install frontend dist files ──
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/frontend/dist)
+    install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/frontend/dist/
+        DESTINATION modules/dreamview/frontend/dist
+        FILES_MATCHING
+            PATTERN "*"
+    )
+endif()
