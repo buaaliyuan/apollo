@@ -124,6 +124,12 @@ install(DIRECTORY cyber/tools/
         PATTERN "*.py" EXCLUDE
 )
 
+# cyber 日志目录
+# Create data/log directory
+install(CODE "file(MAKE_DIRECTORY \"\${CMAKE_INSTALL_PREFIX}/data/log\")")
+
+
+# python 工具安装
 # Install Python tools without .py extension and with executable permissions
 install(PROGRAMS
     cyber/tools/cyber_performance/cyber_performance.py
@@ -150,3 +156,4 @@ install(PROGRAMS
     DESTINATION cyber/tools
     RENAME cyber_launch
 )
+
