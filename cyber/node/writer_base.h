@@ -88,7 +88,7 @@ class WriterBase {
    *
    * @return const uint64_t& const reference to the channel id
    */
-  const uint64_t GetChannelId() const { return role_attr_.channel_id(); }
+  uint64_t GetChannelId() const { return role_attr_.channel_id(); }
 
   /**
    * @brief Is Writer initialized?

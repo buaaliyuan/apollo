@@ -109,3 +109,17 @@ apollo_proto_library(
     SRCS ${CMAKE_CURRENT_SOURCE_DIR}/cyber_conf.proto
     DEPS scheduler_conf_cc_proto transport_conf_cc_proto run_mode_conf_cc_proto perf_conf_cc_proto
 )
+
+# ============================================================================
+# Install generated Python protobuf files
+# ============================================================================
+
+install(DIRECTORY ${CMAKE_BINARY_DIR}/cyber/proto/
+    DESTINATION cyber/proto
+    FILES_MATCHING PATTERN "*_pb2.py"
+)
+
+# Install __init__.py to make it a proper Python package
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py
+    DESTINATION cyber/proto
+)

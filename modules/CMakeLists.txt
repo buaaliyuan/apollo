@@ -37,7 +37,7 @@ add_subdirectory(planning)
 
 # ── Level-5: Modules with cross-deps ──
 add_subdirectory(external_command)
-add_subdirectory(v2x)
+# add_subdirectory(v2x)
 
 # ── Level-6: Dreamview (depends on many modules) ──
 add_subdirectory(dreamview)

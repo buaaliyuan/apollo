@@ -8,3 +8,4 @@
 8. protobuf的proto文件需要在cmake中生成pb.cc和pb.h
 9. 要支持cpu和gpu两种模式编译
 10. cmake 构建时使用15个cpu核心
+11. cmake命令：cmake -DAPOLLO_USE_GPU=ON -DCMAKE_INSTALL_PREFIX=/apollo/output -DAPOLLO_BUILD_MODULES=ON ..

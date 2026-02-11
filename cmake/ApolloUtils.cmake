@@ -236,14 +236,16 @@ endfunction()
 #     HDRS <header_files...>
 #     DEPS <dep_targets...>
 #     COPTS <compile_options...>
+#     DESCRIPTION <plugins.xml>    plugin description file (optional, auto-detected)
 # )
 # Builds a shared library (.so) plugin loaded by CyberRT plugin_manager.
-# Identical to apollo_component in CMake terms.
+# When a plugins.xml is found (via DESCRIPTION or auto-detection from SRCS dir),
+# generates a cyber_plugin_index entry so PluginManager can discover the plugin.
 # ──────────────────────────────────────────────
 function(apollo_plugin)
     cmake_parse_arguments(ARG
         ""
-        "NAME;INSTALL_DIR"
+        "NAME;INSTALL_DIR;DESCRIPTION"
         "SRCS;HDRS;DEPS;COPTS"
         ${ARGN}
     )
@@ -269,7 +271,7 @@ function(apollo_plugin)
         target_compile_options(${_tgt_name} PRIVATE ${ARG_COPTS})
     endif()
 
-    # Install to source-relative path (same logic as apollo_component)
+    # Install .so to source-relative path (same logic as apollo_component)
     if(ARG_INSTALL_DIR)
         set(_install_dir "${ARG_INSTALL_DIR}")
     else()
@@ -278,6 +280,56 @@ function(apollo_plugin)
     install(TARGETS ${_tgt_name}
         LIBRARY DESTINATION "${_install_dir}"
     )
+
+    # ── Plugin description & cyber_plugin_index ──
+    # Resolve the description file:
+    #   1. Use explicit DESCRIPTION if provided
+    #   2. Otherwise, auto-detect plugins.xml in the first source's directory
+    set(_desc_abs "")
+    if(ARG_DESCRIPTION)
+        if(IS_ABSOLUTE "${ARG_DESCRIPTION}")
+            set(_desc_abs "${ARG_DESCRIPTION}")
+        else()
+            set(_desc_abs "${CMAKE_CURRENT_SOURCE_DIR}/${ARG_DESCRIPTION}")
+        endif()
+    else()
+        # Auto-detect: look for plugins.xml next to the first source file
+        if(ARG_SRCS)
+            list(GET ARG_SRCS 0 _first_src)
+            if(IS_ABSOLUTE "${_first_src}")
+                get_filename_component(_src_dir "${_first_src}" DIRECTORY)
+            else()
+                get_filename_component(_src_dir "${CMAKE_CURRENT_SOURCE_DIR}/${_first_src}" DIRECTORY)
+            endif()
+            if(EXISTS "${_src_dir}/plugins.xml")
+                set(_desc_abs "${_src_dir}/plugins.xml")
+            endif()
+        endif()
+    endif()
+
+    if(_desc_abs AND EXISTS "${_desc_abs}")
+        # Compute source-relative install path for plugins.xml
+        file(RELATIVE_PATH _desc_rel "${CMAKE_SOURCE_DIR}" "${_desc_abs}")
+        get_filename_component(_desc_dir "${_desc_rel}" DIRECTORY)
+
+        # Install plugins.xml to its source-relative path
+        install(FILES "${_desc_abs}"
+            DESTINATION "${_desc_dir}"
+        )
+
+        # Generate index name: dir__target  (matching Bazel convention)
+        # e.g. modules__planning__planners__public_road__public_road_planner
+        string(REPLACE "/" "__" _index_name "${_desc_dir}__${_tgt_name}")
+
+        # Index file content = relative path of plugins.xml
+        # PluginManager resolves via APOLLO_PLUGIN_DESCRIPTION_PATH env var
+        file(WRITE "${CMAKE_BINARY_DIR}/cyber_plugin_index/${_index_name}" "${_desc_rel}")
+
+        # Install index file to share/cyber_plugin_index/
+        install(FILES "${CMAKE_BINARY_DIR}/cyber_plugin_index/${_index_name}"
+            DESTINATION "share/cyber_plugin_index"
+        )
+    endif()
 endfunction()
 
 # ──────────────────────────────────────────────
@@ -345,7 +397,7 @@ endfunction()
 #     SRCS <proto_files...>
 #     DEPS <proto_dep_targets...>
 # )
-# Generates C++ code from .proto files and creates a library target.
+# Generates C++ and Python code from .proto files and creates a library target.
 # ──────────────────────────────────────────────
 function(apollo_proto_library)
     cmake_parse_arguments(ARG
@@ -361,6 +413,7 @@ function(apollo_proto_library)
 
     set(_generated_srcs)
     set(_generated_hdrs)
+    set(_generated_py)
 
     foreach(_proto_file ${ARG_SRCS})
         get_filename_component(_proto_name ${_proto_file} NAME_WE)
@@ -373,22 +426,25 @@ function(apollo_proto_library)
 
         set(_pb_cc "${CMAKE_BINARY_DIR}/${_proto_rel_dir}/${_proto_name}.pb.cc")
         set(_pb_h  "${CMAKE_BINARY_DIR}/${_proto_rel_dir}/${_proto_name}.pb.h")
+        set(_pb_py "${CMAKE_BINARY_DIR}/${_proto_rel_dir}/${_proto_name}_pb2.py")
 
         add_custom_command(
-            OUTPUT ${_pb_cc} ${_pb_h}
+            OUTPUT ${_pb_cc} ${_pb_h} ${_pb_py}
             COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/${_proto_rel_dir}"
             COMMAND protobuf::protoc
                 --cpp_out=${CMAKE_BINARY_DIR}
+                --python_out=${CMAKE_BINARY_DIR}
                 -I${CMAKE_SOURCE_DIR}
                 -I${Protobuf_INCLUDE_DIR}
                 ${_proto_abs}
             DEPENDS ${_proto_abs}
-            COMMENT "Generating protobuf C++ for ${_proto_rel}"
+            COMMENT "Generating protobuf C++/Python for ${_proto_rel}"
             VERBATIM
         )
 
         list(APPEND _generated_srcs ${_pb_cc})
         list(APPEND _generated_hdrs ${_pb_h})
+        list(APPEND _generated_py ${_pb_py})
     endforeach()
 
     add_library(${ARG_NAME} STATIC ${_generated_srcs} ${_generated_hdrs})
@@ -401,4 +457,10 @@ function(apollo_proto_library)
         add_dependencies(${ARG_NAME} ${ARG_DEPS})
         target_link_libraries(${ARG_NAME} PUBLIC ${ARG_DEPS})
     endif()
+
+    # Create a custom target to track Python file generation
+    add_custom_target(${ARG_NAME}_py ALL DEPENDS ${_generated_py})
+    set_target_properties(${ARG_NAME}_py PROPERTIES 
+        GENERATED_PY_FILES "${_generated_py}"
+    )
 endfunction()

@@ -34,9 +34,12 @@ pathprepend "${PYTHON_INSTALL_PATH}/bin/" PATH
 
 # 为了运行时能够找到cyber库
 pathprepend ${APOLLO_ROOT_DIR}/lib LD_LIBRARY_PATH
+pathprepend /apollo/thirdparty/paddleinference/paddle/lib LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/apollo/thirdparty/paddleinference/third_party/install/mklml/lib:/apollo/thirdparty/paddleinference/third_party/install/mkldnn/lib:$LD_LIBRARY_PATH
 
 # 为了python工具能够找到cyber的python包
 pathprepend ${APOLLO_ROOT_DIR} PYTHONPATH
+pathprepend ${APOLLO_ROOT_DIR}/cyber/examples PATH
 
 export CYBER_DOMAIN_ID=80
 export CYBER_IP=127.0.0.1

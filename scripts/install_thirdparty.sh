@@ -429,7 +429,6 @@ install_ad_rss() {
 # so building from source via CMake requires special handling.
 #
 # Strategy:
-#   a) If pre-built .a files exist in thirdparty_backup/, copy them
 #   b) Otherwise, download the full gRPC source with submodules and build
 # ############################################################################
 install_grpc() {
@@ -445,53 +444,8 @@ install_grpc() {
         return 0
     fi
 
-    # Strategy A: Copy from backup if available
-    local backup_grpc_lib="${APOLLO_ROOT}/thirdparty_backup/install/lib/grpc"
-    if [[ -d "${backup_grpc_lib}" ]] && [[ $(ls "${backup_grpc_lib}/"*.a 2>/dev/null | wc -l) -ge 60 ]]; then
-        log_info "Copying pre-built gRPC static libs from thirdparty_backup ..."
-        cp "${backup_grpc_lib}/"*.a "${grpc_lib_dir}/"
-
-        # Also copy top-level libs from backup
-        for lib in libgrpc++.so libgrpc++.a libgrpc.a libgrpc.so \
-                   libgrpc_base_c.a libgrpc_base_c.so \
-                   libgpr.a libgpr.so \
-                   libaddress_sorting.a libaddress_sorting.so \
-                   libgrpc++_base.a libgrpc++_base.so \
-                   libgrpc++_codegen_base_src.a \
-                   libboringssl_ssl.a libboringssl_crypto.a libcares.a \
-                   libgrpc_all.a; do
-            if [[ -f "${APOLLO_ROOT}/thirdparty_backup/install/lib/${lib}" ]]; then
-                cp -P "${APOLLO_ROOT}/thirdparty_backup/install/lib/${lib}" "${PREFIX}/lib/"
-            fi
-        done
-
-        # Copy grpc_cpp_plugin from backup or build tree if available
-        if [[ ! -f "${PREFIX}/bin/grpc_cpp_plugin" ]]; then
-            local _plugin=""
-            for _ppath in \
-                "${APOLLO_ROOT}/thirdparty_backup/install/bin/grpc_cpp_plugin" \
-                "${APOLLO_ROOT}/thirdparty_backup/grpc-1.30.0/bins/opt/grpc_cpp_plugin"; do
-                if [[ -f "${_ppath}" ]]; then
-                    _plugin="${_ppath}"
-                    break
-                fi
-            done
-            if [[ -n "${_plugin}" ]]; then
-                cp "${_plugin}" "${PREFIX}/bin/grpc_cpp_plugin"
-                chmod +x "${PREFIX}/bin/grpc_cpp_plugin"
-            else
-                log_warn "grpc_cpp_plugin not found in backup; will be built in Strategy B if needed"
-            fi
-        fi
-
-        _install_grpc_headers
-        _create_grpc_fat_archive
-        log_info "gRPC 1.30.0 installed from backup"
-        return 0
-    fi
-
-    # Strategy B: Build from source
-    log_info "No pre-built gRPC found. Building from source ..."
+    # Build from source
+    log_info "Building gRPC from source ..."
     log_info "Downloading full gRPC source with submodules ..."
 
     local grpc_src="${SRC_DIR}/grpc-1.30.0"
