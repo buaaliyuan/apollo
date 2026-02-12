@@ -1,26 +1,7 @@
-# ============================================================================
-# cyber/time/CMakeLists.txt
-# Mirrors: cyber/time/BUILD
-# ============================================================================
+file(GLOB cyber_srcs "${CMAKE_CURRENT_SOURCE_DIR}/*.cc")
+list(FILTER cyber_srcs EXCLUDE REGEX ".*_test.cc$")
 
-apollo_cc_library(
-    NAME cyber_time
-    SRCS
-        clock.cc
-        duration.cc
-        rate.cc
-        time.cc
-    HDRS
-        clock.h
-        duration.h
-        rate.h
-        time.h
-    DEPS
-        cyber_common
-        cyber_base
-        run_mode_conf_cc_proto
+target_sources(cyber
+PRIVATE
+    ${cyber_srcs}
 )
-
-apollo_cc_test(NAME time_test     SRCS time_test.cc     DEPS cyber_time)
-apollo_cc_test(NAME duration_test SRCS duration_test.cc DEPS cyber_time)
-apollo_cc_test(NAME clock_test    SRCS clock_test.cc    DEPS cyber_time)

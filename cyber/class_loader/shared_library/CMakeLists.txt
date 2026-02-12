@@ -1,11 +1,7 @@
-# ============================================================================
-# cyber/class_loader/shared_library/CMakeLists.txt
-# Mirrors: cyber/class_loader/shared_library/BUILD
-# ============================================================================
+file(GLOB cyber_srcs "${CMAKE_CURRENT_SOURCE_DIR}/*.cc")
+list(FILTER cyber_srcs EXCLUDE REGEX ".*_test.cc$")
 
-apollo_cc_library(
-    NAME shared_library
-    SRCS shared_library.cc
-    HDRS shared_library.h exceptions.h
-    LINKOPTS -ldl
+target_sources(cyber
+PRIVATE
+    ${cyber_srcs}
 )

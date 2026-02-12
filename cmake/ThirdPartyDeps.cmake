@@ -120,6 +120,7 @@ if(NOT nlohmann_json_FOUND)
     endforeach()
     if(NOT _nlohmann_found)
         include(FetchContent)
+        set(JSON_BuildTests OFF CACHE BOOL "" FORCE)
         FetchContent_Declare(nlohmann_json
             URL https://github.com/nlohmann/json/archive/v3.8.0.tar.gz
             URL_HASH SHA256=7d0edf65f2ac7390af5e5a0b323b31202a6c11d744a74b588dc30f5a8c9865ba

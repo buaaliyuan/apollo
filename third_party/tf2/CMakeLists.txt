@@ -14,7 +14,7 @@ include_directories(
 	${Boost_INCLUDE_DIR} # for signals2 is header only
 )
 
-option(BUILD_TESTS "Build the tests" ON)
+option(BUILD_TESTS "Build the tests" OFF)
 
 # export user definitions
 #CPP Libraries

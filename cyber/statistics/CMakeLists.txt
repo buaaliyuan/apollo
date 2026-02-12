@@ -1,15 +1,7 @@
-# ============================================================================
-# cyber/statistics/CMakeLists.txt
-# Mirrors: cyber/statistics/BUILD
-# ============================================================================
+file(GLOB cyber_srcs "${CMAKE_CURRENT_SOURCE_DIR}/*.cc")
+list(FILTER cyber_srcs EXCLUDE REGEX ".*_test.cc$")
 
-apollo_cc_library(
-    NAME apollo_statistics
-    SRCS statistics.cc
-    HDRS statistics.h
-    DEPS
-        cyber_common
-        role_attributes_cc_proto
-        cyber_time
-    LINKOPTS -lbvar
+target_sources(cyber
+PRIVATE
+    ${cyber_srcs}
 )

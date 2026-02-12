@@ -38,8 +38,9 @@ pathprepend /apollo/thirdparty/paddleinference/paddle/lib LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=/apollo/thirdparty/paddleinference/third_party/install/mklml/lib:/apollo/thirdparty/paddleinference/third_party/install/mkldnn/lib:$LD_LIBRARY_PATH
 
 # 为了python工具能够找到cyber的python包
+pathprepend ${APOLLO_ROOT_DIR}/lib PYTHONPATH
 pathprepend ${APOLLO_ROOT_DIR} PYTHONPATH
-pathprepend ${APOLLO_ROOT_DIR}/cyber/examples PATH
+pathprepend ${APOLLO_ROOT_DIR}/bin PATH
 
 export CYBER_DOMAIN_ID=80
 export CYBER_IP=127.0.0.1
@@ -53,5 +54,7 @@ export sysmo_start=0
 
 # for DEBUG log
 #export GLOG_v=4
+alias cyber_node='LD_PRELOAD=/usr/lib/libtcmalloc.so.4 cyber_node'
+alias cyber_channel='LD_PRELOAD=/usr/lib/libtcmalloc.so.4 cyber_channel'
 
 source ${CYBER_PATH}/tools/cyber_tools_auto_complete.bash

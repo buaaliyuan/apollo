@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 project(apollo LANGUAGES C CXX ASM)
-
+enable_language(CUDA)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -11,20 +11,12 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Build output directories
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/static_lib)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
-# ──────────────────────────────────────────────
-# Options
-# ──────────────────────────────────────────────
-option(APOLLO_USE_GPU    "Enable GPU (CUDA) support"          ON)
-option(APOLLO_BUILD_TESTS "Build unit tests"                  OFF)
 option(APOLLO_BUILD_CYBER   "Build CyberRT module"              ON)
-option(APOLLO_BUILD_MODULES "Build Apollo modules"              ON)
+option(APOLLO_BUILD_MODULES "Build Apollo modules"              OFF)
 option(APOLLO_BUILD_FRONTEND "Build frontend (dreamview/dreamview_plus)" OFF)
 
-# ──────────────────────────────────────────────
-# Global compile flags
-# ──────────────────────────────────────────────
 add_compile_options(
     -Wall
     -Wextra
@@ -39,50 +31,43 @@ elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64")
     add_compile_definitions(APOLLO_AARCH64=1)
 endif()
 
-if(APOLLO_USE_GPU)
-    enable_language(CUDA)
-    find_package(CUDA REQUIRED)
-    add_compile_definitions(USE_GPU=1)
-    include_directories(${CUDA_INCLUDE_DIRS})
-    message(STATUS "CUDA include dirs: ${CUDA_INCLUDE_DIRS}")
-
-    # CMP0104: CUDA targets must have CUDA_ARCHITECTURES set.
-    # Auto-detect the GPU on the build machine; fall back to common arches.
-    if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES OR CMAKE_CUDA_ARCHITECTURES STREQUAL "")
-        # 7.5 = Turing (T4/RTX20xx), 8.0 = A100, 8.6 = RTX30xx, 8.9 = RTX40xx
-        set(CMAKE_CUDA_ARCHITECTURES "75;80;86" CACHE STRING "CUDA architectures")
-        message(STATUS "CUDA architectures (default): ${CMAKE_CUDA_ARCHITECTURES}")
-    else()
-        message(STATUS "CUDA architectures (user):    ${CMAKE_CUDA_ARCHITECTURES}")
-    endif()
-endif()
-
-# ──────────────────────────────────────────────
-# Project-wide include paths
-# ──────────────────────────────────────────────
-# Allow #include "cyber/..." from project root
-include_directories(${CMAKE_SOURCE_DIR})
-# Allow #include for generated protobuf headers
-include_directories(${CMAKE_BINARY_DIR})
-
-# ──────────────────────────────────────────────
-# CMake module path
-# ──────────────────────────────────────────────
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
-
-# ──────────────────────────────────────────────
-# Third-party dependencies (consolidated)
-# ──────────────────────────────────────────────
 include(ThirdPartyDeps)
 
-# ──────────────────────────────────────────────
-# Utility functions (apollo_cc_library, etc.)
-# ──────────────────────────────────────────────
-include(ApolloUtils)
+file(GLOB_RECURSE PROTO_FILES "modules/*.proto" "cyber/*.proto")
+foreach(protofile ${PROTO_FILES})
+    get_filename_component(protodir ${protofile} DIRECTORY)
+    get_filename_component(protoname ${protofile} NAME_WE)
+    set(pb_h "${protodir}/${protoname}.pb.h")
 
-# ──────────────────────────────────────────────
-# Sub-directories
-# ──────────────────────────────────────────────
+    set(need_generate FALSE)
+    if(NOT EXISTS "${pb_h}")
+        set(need_generate TRUE)
+    else()
+        FILE(TIMESTAMP "${protofile}" proto_ts "%s")
+        FILE(TIMESTAMP "${pb_h}" pb_ts "%s")
+        if(proto_ts GREATER pb_ts)
+            set(need_generate TRUE)
+        endif()
+    endif()
+    
+    if(need_generate)
+        execute_process(COMMAND ${Protobuf_PROTOC_EXECUTABLE}
+            --cpp_out=${PROJECT_SOURCE_DIR}
+            --proto_path=${PROJECT_SOURCE_DIR}
+            ${protofile}
+            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+        )
+        execute_process(COMMAND ${Protobuf_PROTOC_EXECUTABLE}
+            --python_out=${PROJECT_SOURCE_DIR}
+            --proto_path=${PROJECT_SOURCE_DIR}
+            ${protofile}
+            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+        )
+    endif()
+endforeach()
+
+
 if(APOLLO_BUILD_CYBER)
     add_subdirectory(cyber)
 endif()
@@ -90,124 +75,3 @@ endif()
 if(APOLLO_BUILD_MODULES)
     add_subdirectory(modules)
 endif()
-
-# ──────────────────────────────────────────────
-# Install rules
-# ──────────────────────────────────────────────
-# Default install prefix: /apollo (matches DAG relative paths)
-if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    set(CMAKE_INSTALL_PREFIX "/apollo" CACHE PATH "Install prefix" FORCE)
-endif()
-
-# Install libcyber.so to lib/ (shared runtime library)
-if(APOLLO_BUILD_CYBER)
-    install(TARGETS cyber
-        LIBRARY DESTINATION lib
-    )
-endif()
-
-# Install conf / dag / launch data files preserving source-relative paths
-# so that DAG module_library paths and config_file_path references work.
-install(DIRECTORY modules/
-    DESTINATION modules
-    FILES_MATCHING
-        PATTERN "*.dag"
-        PATTERN "*.launch"
-        PATTERN "*.conf"
-        PATTERN "*.pb.txt"
-        PATTERN "*.pt"        # model files
-)
-
-# Install cyber conf and tools
-install(DIRECTORY cyber/conf/
-    DESTINATION cyber/conf
-)
-install(FILES cyber/setup.bash
-    DESTINATION cyber
-)
-install(DIRECTORY scripts/
-    DESTINATION scripts
-)
-
-install(DIRECTORY cyber/tools/
-    DESTINATION cyber/tools
-    FILES_MATCHING
-        PATTERN "*.py" EXCLUDE
-)
-
-# cyber 日志目录
-# Create data/log directory
-install(CODE "file(MAKE_DIRECTORY \"\${CMAKE_INSTALL_PREFIX}/data/log\")")
-
-# 插件索引目录 (cyber_plugin_index)
-# Plugin index files are generated by apollo_plugin() and installed to
-# share/cyber_plugin_index/. Ensure the directory exists.
-install(CODE "file(MAKE_DIRECTORY \"\${CMAKE_INSTALL_PREFIX}/share/cyber_plugin_index\")")
-
-# ── 插件描述文件安装脚本 ──
-# Scan all plugins.xml under modules/ at install time, install them and
-# generate cyber_plugin_index entries.
-#
-# How the plugin system works:
-#   1. Each plugin has a plugins.xml describing its .so path + class info
-#   2. share/cyber_plugin_index/ contains index files (name→description path)
-#   3. PluginManager reads index files, locates plugins.xml, lazy-loads .so
-
-# Generate the install script at configure time (embeds SOURCE_DIR)
-file(WRITE "${CMAKE_BINARY_DIR}/install_plugins.cmake" "
-# Auto-generated plugin install script
-file(GLOB_RECURSE _all_plugin_xmls \"${CMAKE_SOURCE_DIR}/modules/*/plugins.xml\")
-foreach(_xml \${_all_plugin_xmls})
-    # Skip testdata
-    string(FIND \"\${_xml}\" \"testdata\" _td_pos)
-    if(NOT _td_pos EQUAL -1)
-        continue()
-    endif()
-
-    # Get path relative to source root
-    file(RELATIVE_PATH _rel \"${CMAKE_SOURCE_DIR}\" \"\${_xml}\")
-    get_filename_component(_rel_dir \"\${_rel}\" DIRECTORY)
-
-    # Install plugins.xml to its source-relative path
-    set(_dst_dir \"\${CMAKE_INSTALL_PREFIX}/\${_rel_dir}\")
-    file(MAKE_DIRECTORY \"\${_dst_dir}\")
-    file(INSTALL \"\${_xml}\" DESTINATION \"\${_dst_dir}\")
-
-    # Extract .so name from plugins.xml content
-    file(READ \"\${_xml}\" _xml_content)
-    string(REGEX MATCH \"/(lib[^/\\\"]+\\\\.so)\" _match \"\${_xml_content}\")
-    if(CMAKE_MATCH_1)
-        string(REGEX REPLACE \"^lib\" \"\" _tgt \"\${CMAKE_MATCH_1}\")
-        string(REGEX REPLACE \"\\\\.so$\" \"\" _tgt \"\${_tgt}\")
-    else()
-        get_filename_component(_tgt \"\${_rel_dir}\" NAME)
-    endif()
-
-    # Generate cyber_plugin_index entry
-    string(REPLACE \"/\" \"__\" _index_name \"\${_rel_dir}__\${_tgt}\")
-    set(_index_dir \"\${CMAKE_INSTALL_PREFIX}/share/cyber_plugin_index\")
-    file(MAKE_DIRECTORY \"\${_index_dir}\")
-    file(WRITE \"\${_index_dir}/\${_index_name}\" \"\${_rel}\")
-    message(STATUS \"Plugin index: \${_index_name}\")
-endforeach()
-")
-install(SCRIPT "${CMAKE_BINARY_DIR}/install_plugins.cmake")
-
-
-# python 工具安装
-# Install Python tools without .py extension and with executable permissions
-# Create copies without .py extension at build time, then install them
-foreach(_py_tool cyber_performance cyber_node cyber_channel cyber_service cyber_launch)
-    set(_src "${CMAKE_SOURCE_DIR}/cyber/tools/${_py_tool}/${_py_tool}.py")
-    set(_dst "${CMAKE_BINARY_DIR}/py_tools/${_py_tool}")
-    
-    # Copy .py file to binary dir without extension at configure time
-    file(COPY "${_src}" DESTINATION "${CMAKE_BINARY_DIR}/py_tools")
-    file(RENAME "${CMAKE_BINARY_DIR}/py_tools/${_py_tool}.py" "${_dst}")
-    
-    # Install the renamed file with executable permissions
-    install(PROGRAMS "${_dst}"
-        DESTINATION cyber/tools
-    )
-endforeach()
-

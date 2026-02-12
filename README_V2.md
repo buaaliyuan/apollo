@@ -31,4 +31,7 @@
 
 ## 启动测试模块记录
 - [x] storytelling `cyber_launch.py start /apollo/modules/storytelling/launch/storytelling.launch`
+- [x] `mainboard -d /apollo/output/modules/perception/barrier_recognition/dag/barrier_recognition.dag `
+- [ ] `mainboard -d /apollo/output/modules/perception/barrier_recognition/dag/barrier_recognition.dag`  model [perception]Can't find CAM_BACK in data/conf/sensor_meta.pb.txt
+
 - [ ] v2x 因为grpc的问题暂时屏蔽不编译 

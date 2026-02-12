@@ -85,3 +85,17 @@ tools/FlameGraph
 modules/studio_connector
 
 #WORKSPACE
+cmake_build
+build_cmake
+build
+out/*
+thirdparty/*
+bvar*
+thirdparty_backup/*
+.aem
+
+*.pb.cc
+*.pb.h
+*.pb2.py
+
+*.data

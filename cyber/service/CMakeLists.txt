@@ -1,16 +1,7 @@
-# ============================================================================
-# cyber/service/CMakeLists.txt
-# Header-only library. Mirrors: cyber/service/BUILD
-# ============================================================================
+file(GLOB cyber_srcs "${CMAKE_CURRENT_SOURCE_DIR}/*.cc")
+list(FILTER cyber_srcs EXCLUDE REGEX ".*_test.cc$")
 
-apollo_cc_library(
-    NAME cyber_service
-    INTERFACE
-    HDRS
-        client.h
-        service.h
-        service_base.h
-        client_base.h
-    DEPS
-        cyber_scheduler
+target_sources(cyber
+PRIVATE
+    ${cyber_srcs}
 )

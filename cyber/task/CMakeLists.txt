@@ -1,14 +1,7 @@
-# ============================================================================
-# cyber/task/CMakeLists.txt
-# Mirrors: cyber/task/BUILD
-# ============================================================================
+file(GLOB cyber_srcs "${CMAKE_CURRENT_SOURCE_DIR}/*.cc")
+list(FILTER cyber_srcs EXCLUDE REGEX ".*_test.cc$")
 
-apollo_cc_library(
-    NAME cyber_task
-    SRCS task_manager.cc
-    HDRS task.h task_manager.h
-    DEPS cyber_scheduler
-    COPTS -faligned-new
+target_sources(cyber
+PRIVATE
+    ${cyber_srcs}
 )
-
-apollo_cc_test(NAME task_test SRCS task_test.cc DEPS cyber)

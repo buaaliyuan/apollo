@@ -1,12 +1,8 @@
-# ============================================================================
-# cyber/context/CMakeLists.txt
-# Header-only library. Mirrors: cyber/context/BUILD
-# ============================================================================
 
-apollo_cc_library(
-    NAME cyber_context
-    INTERFACE
-    HDRS context.h
+file(GLOB cyber_srcs "${CMAKE_CURRENT_SOURCE_DIR}/*.cc")
+list(FILTER cyber_srcs EXCLUDE REGEX ".*_test.cc$")
+
+target_sources(cyber
+PRIVATE
+    ${cyber_srcs}
 )
-
-apollo_cc_test(NAME cyber_context_test SRCS context_test.cc DEPS cyber_context LINKOPTS -lm)

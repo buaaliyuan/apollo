@@ -1,125 +1,19 @@
-# ============================================================================
-# cyber/proto/CMakeLists.txt
-# Protobuf code generation for CyberRT proto definitions.
-# Mirrors: cyber/proto/BUILD
-# ============================================================================
+file(GLOB cyber_proto_srcs "${CMAKE_CURRENT_SOURCE_DIR}/*.cc")
+list(FILTER cyber_proto_srcs EXCLUDE REGEX ".*_test.cc$")
 
-# ── Standalone protos (no deps) ──────────────────────────────────
-
-apollo_proto_library(
-    NAME clock_cc_proto
-    SRCS ${CMAKE_CURRENT_SOURCE_DIR}/clock.proto
+add_library(cyber_proto SHARED 
+    ${cyber_proto_srcs} 
+    ${CMAKE_SOURCE_DIR}/cyber/benchmark/benchmark_msg.pb.cc
+    ${CMAKE_SOURCE_DIR}/cyber/examples/proto/examples.pb.cc 
 )
-
-apollo_proto_library(
-    NAME perf_conf_cc_proto
-    SRCS ${CMAKE_CURRENT_SOURCE_DIR}/perf_conf.proto
+target_link_libraries(cyber_proto
+PUBLIC
+    protobuf::libprotobuf
 )
+target_include_directories(cyber_proto PRIVATE ${CMAKE_SOURCE_DIR})
 
-apollo_proto_library(
-    NAME proto_desc_cc_proto
-    SRCS ${CMAKE_CURRENT_SOURCE_DIR}/proto_desc.proto
-)
-
-apollo_proto_library(
-    NAME record_cc_proto
-    SRCS ${CMAKE_CURRENT_SOURCE_DIR}/record.proto
-)
-
-apollo_proto_library(
-    NAME run_mode_conf_cc_proto
-    SRCS ${CMAKE_CURRENT_SOURCE_DIR}/run_mode_conf.proto
-)
-
-apollo_proto_library(
-    NAME transport_conf_cc_proto
-    SRCS ${CMAKE_CURRENT_SOURCE_DIR}/transport_conf.proto
-)
-
-apollo_proto_library(
-    NAME qos_profile_cc_proto
-    SRCS ${CMAKE_CURRENT_SOURCE_DIR}/qos_profile.proto
-)
-
-apollo_proto_library(
-    NAME choreography_conf_cc_proto
-    SRCS ${CMAKE_CURRENT_SOURCE_DIR}/choreography_conf.proto
-)
-
-apollo_proto_library(
-    NAME classic_conf_cc_proto
-    SRCS ${CMAKE_CURRENT_SOURCE_DIR}/classic_conf.proto
-)
-
-apollo_proto_library(
-    NAME parameter_cc_proto
-    SRCS ${CMAKE_CURRENT_SOURCE_DIR}/parameter.proto
-)
-
-apollo_proto_library(
-    NAME unit_test_cc_proto
-    SRCS ${CMAKE_CURRENT_SOURCE_DIR}/unit_test.proto
-)
-
-apollo_proto_library(
-    NAME simple_cc_proto
-    SRCS ${CMAKE_CURRENT_SOURCE_DIR}/simple.proto
-)
-
-# ── Protos with dependencies ─────────────────────────────────────
-
-# component_conf depends on qos_profile
-apollo_proto_library(
-    NAME component_conf_cc_proto
-    SRCS ${CMAKE_CURRENT_SOURCE_DIR}/component_conf.proto
-    DEPS qos_profile_cc_proto
-)
-
-# role_attributes depends on qos_profile
-apollo_proto_library(
-    NAME role_attributes_cc_proto
-    SRCS ${CMAKE_CURRENT_SOURCE_DIR}/role_attributes.proto
-    DEPS qos_profile_cc_proto
-)
-
-# topology_change depends on role_attributes
-apollo_proto_library(
-    NAME topology_change_cc_proto
-    SRCS ${CMAKE_CURRENT_SOURCE_DIR}/topology_change.proto
-    DEPS role_attributes_cc_proto
-)
-
-# scheduler_conf depends on choreography_conf and classic_conf
-apollo_proto_library(
-    NAME scheduler_conf_cc_proto
-    SRCS ${CMAKE_CURRENT_SOURCE_DIR}/scheduler_conf.proto
-    DEPS choreography_conf_cc_proto classic_conf_cc_proto
-)
-
-# dag_conf depends on component_conf
-apollo_proto_library(
-    NAME dag_conf_cc_proto
-    SRCS ${CMAKE_CURRENT_SOURCE_DIR}/dag_conf.proto
-    DEPS component_conf_cc_proto
-)
-
-# cyber_conf depends on scheduler_conf, transport_conf, run_mode_conf, perf_conf
-apollo_proto_library(
-    NAME cyber_conf_cc_proto
-    SRCS ${CMAKE_CURRENT_SOURCE_DIR}/cyber_conf.proto
-    DEPS scheduler_conf_cc_proto transport_conf_cc_proto run_mode_conf_cc_proto perf_conf_cc_proto
-)
-
-# ============================================================================
-# Install generated Python protobuf files
-# ============================================================================
-
-install(DIRECTORY ${CMAKE_BINARY_DIR}/cyber/proto/
-    DESTINATION cyber/proto
-    FILES_MATCHING PATTERN "*_pb2.py"
-)
-
-# Install __init__.py to make it a proper Python package
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py
-    DESTINATION cyber/proto
+install(TARGETS cyber_proto
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    RUNTIME DESTINATION bin
 )

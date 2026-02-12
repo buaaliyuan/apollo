@@ -1,13 +1,7 @@
-# ============================================================================
-# cyber/sysmo/CMakeLists.txt
-# Mirrors: cyber/sysmo/BUILD
-# ============================================================================
+file(GLOB cyber_srcs "${CMAKE_CURRENT_SOURCE_DIR}/*.cc")
+list(FILTER cyber_srcs EXCLUDE REGEX ".*_test.cc$")
 
-apollo_cc_library(
-    NAME cyber_sysmo
-    SRCS sysmo.cc
-    HDRS sysmo.h
-    DEPS cyber_scheduler
+target_sources(cyber
+PRIVATE
+    ${cyber_srcs}
 )
-
-apollo_cc_test(NAME sysmo_test SRCS sysmo_test.cc DEPS cyber)

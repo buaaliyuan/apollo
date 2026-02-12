@@ -1,18 +1,7 @@
-# ============================================================================
-# cyber/blocker/CMakeLists.txt
-# Mirrors: cyber/blocker/BUILD
-# ============================================================================
+file(GLOB cyber_srcs "${CMAKE_CURRENT_SOURCE_DIR}/*.cc")
+list(FILTER cyber_srcs EXCLUDE REGEX ".*_test.cc$")
 
-apollo_cc_library(
-    NAME cyber_blocker
-    SRCS
-        blocker_manager.cc
-    HDRS
-        blocker_manager.h
-        blocker.h
-        intra_reader.h
-        intra_writer.h
+target_sources(cyber
+PRIVATE
+    ${cyber_srcs}
 )
-
-apollo_cc_test(NAME blocker_manager_test SRCS blocker_manager_test.cc DEPS cyber unit_test_cc_proto)
-apollo_cc_test(NAME blocker_test         SRCS blocker_test.cc         DEPS cyber unit_test_cc_proto)
