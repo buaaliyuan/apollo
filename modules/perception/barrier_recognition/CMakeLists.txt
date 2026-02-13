@@ -57,6 +57,7 @@ apollo_component(
         cyber
         apollo_perception_common_onboard
         perception_barrier_gate_cc_proto
+        perception_plugin_param_cc_proto
         ${_br_proto_deps}
     COPTS -DMODULE_NAME="perception"
     LINKOPTS -lleveldb

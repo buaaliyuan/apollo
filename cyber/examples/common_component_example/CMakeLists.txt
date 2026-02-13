@@ -6,3 +6,7 @@ install(TARGETS common_component_example
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
 )
+
+file(RELATIVE_PATH INSTALL_PATH "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}")
+install(FILES common.dag DESTINATION ${INSTALL_PATH})
+install(FILES common.launch DESTINATION ${INSTALL_PATH})

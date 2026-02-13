@@ -16,37 +16,37 @@ add_subdirectory(transform)
 add_subdirectory(drivers)          # drivers/canbus base library + all driver components
 
 # ── Level-2: Depends on transform/drivers ──
-add_subdirectory(map)
-add_subdirectory(routing)
+# add_subdirectory(map)
+# add_subdirectory(routing)
 
 # ── Level-3: Simpler application modules ──
-add_subdirectory(guardian)
-add_subdirectory(bridge)
-add_subdirectory(storytelling)
-add_subdirectory(canbus)
-add_subdirectory(canbus_vehicle)   # vehicle CAN plugins (ch, devkit, ge3, etc.)
-add_subdirectory(audio)
-add_subdirectory(third_party_perception)
+# add_subdirectory(guardian)
+# add_subdirectory(bridge)
+# add_subdirectory(storytelling)
+# add_subdirectory(canbus)
+# add_subdirectory(canbus_vehicle)   # vehicle CAN plugins (ch, devkit, ge3, etc.)
+# add_subdirectory(audio)
+# add_subdirectory(third_party_perception)
 
 # ── Level-4: Heavy algorithm modules ──
-add_subdirectory(perception)
-add_subdirectory(localization)
-add_subdirectory(prediction)
-add_subdirectory(control)
-add_subdirectory(planning)
+# add_subdirectory(perception)
+# add_subdirectory(localization)
+# add_subdirectory(prediction)
+# add_subdirectory(control)
+# add_subdirectory(planning)
 
 # ── Level-5: Modules with cross-deps ──
-add_subdirectory(external_command)
+# add_subdirectory(external_command)
 # add_subdirectory(v2x)
 
 # ── Level-6: Dreamview (depends on many modules) ──
-add_subdirectory(dreamview)
-add_subdirectory(dreamview_plus)
+# add_subdirectory(dreamview)
+# add_subdirectory(dreamview_plus)
 
 # ── Level-7: Monitor & Task Manager (depend on dreamview) ──
-add_subdirectory(monitor)
-add_subdirectory(task_manager)
+# add_subdirectory(monitor)
+# add_subdirectory(task_manager)
 
 # ── Level-8: Statistics & contrib ──
-add_subdirectory(statistics)
-add_subdirectory(contrib)
+# add_subdirectory(statistics)
+# add_subdirectory(contrib)

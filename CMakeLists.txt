@@ -14,7 +14,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 option(APOLLO_BUILD_CYBER   "Build CyberRT module"              ON)
-option(APOLLO_BUILD_MODULES "Build Apollo modules"              OFF)
+option(APOLLO_BUILD_MODULES "Build Apollo modules"              ON)
 option(APOLLO_BUILD_FRONTEND "Build frontend (dreamview/dreamview_plus)" OFF)
 
 add_compile_options(
@@ -75,3 +75,7 @@ endif()
 if(APOLLO_BUILD_MODULES)
     add_subdirectory(modules)
 endif()
+
+# Install directories，用于存放日志
+install(DIRECTORY DESTINATION data/log)
+

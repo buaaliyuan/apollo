@@ -70,5 +70,6 @@ apollo_component(
         perception_common_util
         sensor_image_cc_proto
         ${_cdb_proto_deps}
+        perception_plugin_param_cc_proto
     COPTS -DMODULE_NAME="perception"
 )

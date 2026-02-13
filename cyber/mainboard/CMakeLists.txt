@@ -7,3 +7,7 @@ target_link_libraries(mainboard
 PRIVATE
     cyber
 )
+
+install(TARGETS mainboard
+    RUNTIME DESTINATION bin
+)

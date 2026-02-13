@@ -1,25 +1,17 @@
-# ============================================================================
-# modules/common/CMakeLists.txt
-# Shared utility libraries used across Apollo modules
-# ============================================================================
+file(GLOB_RECURSE COMMON_SOURCES "*.cc")
+list(FILTER COMMON_SOURCES EXCLUDE REGEX ".*_test.cc$")
 
-# Proto definitions local to common/
-add_subdirectory(adapters/proto)
-add_subdirectory(latency_recorder/proto)
-add_subdirectory(vehicle_model/proto)
-add_subdirectory(vehicle_state/proto)
-add_subdirectory(util/testdata)
+add_library(modules_common SHARED ${COMMON_SOURCES})
+target_link_libraries(modules_common 
+PUBLIC 
+    cyber
+    osqp
+    gtest_headers
+    msg_proto
+)
 
-# Libraries (ordered by dependency)
-add_subdirectory(adapters)
-add_subdirectory(configs)
-add_subdirectory(util)
-add_subdirectory(filters)
-add_subdirectory(math)
-add_subdirectory(status)
-add_subdirectory(service_wrapper)
-add_subdirectory(monitor_log)
-add_subdirectory(kv_db)
-add_subdirectory(latency_recorder)
-add_subdirectory(vehicle_model)
-add_subdirectory(vehicle_state)
+install(TARGETS modules_common
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+)

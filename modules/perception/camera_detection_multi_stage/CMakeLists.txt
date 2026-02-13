@@ -22,7 +22,9 @@ foreach(_proto ${_cdms_protos})
     string(REPLACE "/" "_" _rs "${_rel}")
     string(REPLACE ".proto" "" _rs "${_rs}")
     list(APPEND _cdms_proto_deps "perception_camera_detection_multi_stage_${_rs}_cc_proto")
+    message(STATUS "== ${CMAKE_CURRENT_SOURCE_DIR}Added proto dependency: perception_camera_detection_multi_stage_${_rs}_cc_proto")
 endforeach()
+
 
 # ── Main library (GPU-dependent detectors) ──
 set(_cdms_srcs)
@@ -106,7 +108,9 @@ apollo_component(
         perception_common_util
         perception_model_info_cc_proto
         sensor_image_cc_proto
+        perception_plugin_param_cc_proto
         ${_cdms_proto_deps}
         ${_cdms_comp_gpu_deps}
+        apollo_perception_common_inference
     COPTS -DMODULE_NAME="perception"
 )

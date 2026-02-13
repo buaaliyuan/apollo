@@ -128,6 +128,7 @@ apollo_cc_library(
 file(GLOB_RECURSE _perception_inference_srcs inference/*.cc)
 list(FILTER _perception_inference_srcs EXCLUDE REGEX ".*_test\\.cc$")
 if(NOT APOLLO_USE_GPU)
+    message(STATUS "== ${CMAKE_CURRENT_SOURCE_DIR}: GPU support is disabled, excluding GPU backends")
     list(FILTER _perception_inference_srcs EXCLUDE REGEX ".*tensorrt.*\\.cc$")
     list(FILTER _perception_inference_srcs EXCLUDE REGEX ".*paddlepaddle.*\\.cc$")
     list(FILTER _perception_inference_srcs EXCLUDE REGEX ".*migraphx.*\\.cc$")
@@ -307,7 +308,9 @@ apollo_cc_library(
 # ── perception common/interface (header-only) ──
 apollo_cc_library(
     NAME apollo_perception_common_interface
-    INTERFACE
+    SRCS 
+        interface/base_obstacle_detector.cc
+
     HDRS
         interface/base_down_sample.h
         interface/base_obstacle_detector.h
@@ -315,4 +318,6 @@ apollo_cc_library(
         apollo_perception_common_base
         apollo_perception_common_lib
         apollo_perception_common_lidar
+        ${TORCH_LIBRARIES}
+    COPTS -DMODULE_NAME="perception"
 )
