@@ -27,11 +27,4 @@
 3. 关于环境变量
    1. [apollo.bashrc](scripts/apollo.bashrc) 修改了`APOLLO_ROOT_DIR`,`APOLLO_LIB_PATH`,`APOLLO_PLUGIN_LIB_PATH`
    2. [setup.bash](cyber/setup.bash) 修改了`PYTHONPATH`和`LD_LIBRARY_PATH`
-4. 
 
-## 启动测试模块记录
-- [x] storytelling `cyber_launch.py start /apollo/modules/storytelling/launch/storytelling.launch`
-- [x] `mainboard -d /apollo/output/modules/perception/barrier_recognition/dag/barrier_recognition.dag `
-- [ ] `mainboard -d /apollo/output/modules/perception/barrier_recognition/dag/barrier_recognition.dag`  model [perception]Can't find CAM_BACK in data/conf/sensor_meta.pb.txt
-
-- [ ] v2x 因为grpc的问题暂时屏蔽不编译 

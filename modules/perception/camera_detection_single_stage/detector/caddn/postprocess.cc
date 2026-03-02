@@ -44,7 +44,7 @@ void GetCaddnObjects(std::vector<base::ObjectPtr> *objects,
     float label = *(labels_data + i);
     base::ObjectPtr obj = nullptr;
     obj.reset(new base::Object);
-    obj->sub_type = GetSubtype(label, types);
+    obj->sub_type = CaddnGetSubtype(label, types);
     obj->type = base::kSubType2TypeMap.at(obj->sub_type);
     obj->type_probs.assign(static_cast<int>(base::ObjectType::MAX_OBJECT_TYPE),
                            0);
@@ -97,7 +97,7 @@ void Bbox3dLidar2Camera(const Eigen::Matrix<float, 3, 4> &V2C,
                       final_result.data() + final_result.size());
 }
 
-base::ObjectSubType GetSubtype(int cls,
+base::ObjectSubType CaddnGetSubtype(int cls,
                                const std::vector<base::ObjectSubType> &types) {
   if (cls < 0 || cls >= static_cast<int>(types.size())) {
     return base::ObjectSubType::UNKNOWN;

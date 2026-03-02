@@ -8,6 +8,7 @@ PUBLIC
     osqp
     gtest_headers
     msg_proto
+    Eigen3::Eigen
 )
 
 install(TARGETS modules_common

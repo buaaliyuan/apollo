@@ -7,18 +7,14 @@
 # ============================================================================
 
 # GPU platform defines used by perception code (#if GPU_PLATFORM == NVIDIA/AMD)
-if(NOT APOLLO_USE_GPU)
-    add_compile_definitions(NVIDIA=1 AMD=2 GPU_PLATFORM=0)
-    add_compile_options("-DcudaStream_t=void*" "-DcublasHandle_t=void*")
-else()
-    add_compile_definitions(NVIDIA=0 AMD=1 GPU_PLATFORM=0)  # NVIDIA by default
-endif()
+
+add_compile_definitions(NVIDIA=0 AMD=1 GPU_PLATFORM=0 USE_GPU=1)  # NVIDIA by default
 
 # ── 1. Common libraries (must come first — all sub-modules depend on these) ──
 add_subdirectory(common)
 
 # ── 2. Tools (some sub-modules like lane_detection depend on tools/offline) ──
-add_subdirectory(tools)
+# add_subdirectory(tools)
 
 # ── 3. Pointcloud pipeline ──
 add_subdirectory(pointcloud_preprocess)

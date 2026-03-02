@@ -65,7 +65,7 @@ void Bbox3dLidar2Camera(const Eigen::Matrix<float, 3, 4> &V2C,
  * @param types  the object types
  * @return base::ObjectSubType
  */
-base::ObjectSubType GetSubtype(int cls,
+base::ObjectSubType CaddnGetSubtype(int cls,
                                const std::vector<base::ObjectSubType> &types);
 /**
  * @brief Add objects values to object

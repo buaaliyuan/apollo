@@ -1,43 +1,26 @@
-# ============================================================================
-# modules/storytelling/CMakeLists.txt
-# ============================================================================
-
-# ── Proto ──
-apollo_proto_library(
-    NAME storytelling_config_cc_proto
-    SRCS proto/storytelling_config.proto
+add_library(storytelling_component SHARED)
+target_sources(storytelling_component
+PRIVATE
+    storytelling.cc
+    common/storytelling_gflags.cc
+    story_tellers/close_to_junction_teller.cc
+    proto/storytelling_config.pb.cc
 )
 
-# ── apollo_storytelling library ──
-apollo_cc_library(
-    NAME apollo_storytelling
-    SRCS
-        frame_manager.cc
-        story_tellers/close_to_junction_teller.cc
-        common/storytelling_gflags.cc
-    HDRS
-        frame_manager.h
-        story_tellers/base_teller.h
-        story_tellers/close_to_junction_teller.h
-        common/storytelling_gflags.h
-    DEPS
-        cyber
-        monitor_log
-        story_cc_proto
-        storytelling_config_cc_proto
-        adapter_gflags
-        apollo_map
-        planning_cc_proto
-        gflags
+target_compile_definitions(storytelling_component
+PUBLIC
+    MODULE_NAME="storytelling"
 )
 
-# ── storytelling_component ──
-apollo_component(
-    NAME libstorytelling_component.so
-    SRCS storytelling.cc
-    HDRS storytelling.h
-    DEPS
-        cyber
-        apollo_storytelling
-    COPTS -DMODULE_NAME="storytelling"
+target_link_libraries(storytelling_component
+PUBLIC
+    cyber
+    msg_proto
+    modules_common
+)
+
+install(TARGETS storytelling_component
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
 )

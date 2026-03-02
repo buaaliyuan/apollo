@@ -1,65 +1,51 @@
-# ============================================================================
-# modules/perception/multi_sensor_fusion/CMakeLists.txt
-# Component: libmulti_sensor_fusion.so
-# ============================================================================
-
-# ── Protos ──
-file(GLOB_RECURSE _msf_protos "${CMAKE_CURRENT_SOURCE_DIR}/*.proto")
-foreach(_proto ${_msf_protos})
-    file(RELATIVE_PATH _rel_proto "${CMAKE_CURRENT_SOURCE_DIR}" "${_proto}")
-    string(REPLACE "/" "_" _rel_safe "${_rel_proto}")
-    string(REPLACE ".proto" "" _rel_safe "${_rel_safe}")
-    apollo_proto_library(
-        NAME perception_multi_sensor_fusion_${_rel_safe}_cc_proto
-        SRCS ${_proto}
-    )
-endforeach()
-
-set(_msf_proto_deps)
-foreach(_proto ${_msf_protos})
-    file(RELATIVE_PATH _rel "${CMAKE_CURRENT_SOURCE_DIR}" "${_proto}")
-    string(REPLACE "/" "_" _rs "${_rel}")
-    string(REPLACE ".proto" "" _rs "${_rs}")
-    list(APPEND _msf_proto_deps "perception_multi_sensor_fusion_${_rs}_cc_proto")
-endforeach()
-
-# ── Main library ──
-file(GLOB_RECURSE _msf_srcs "${CMAKE_CURRENT_SOURCE_DIR}/*.cc")
-list(FILTER _msf_srcs EXCLUDE REGEX ".*_test\\.cc$")
-list(FILTER _msf_srcs EXCLUDE REGEX ".*_component\\.cc$")
-
-apollo_cc_library(
-    NAME apollo_perception_multi_sensor_fusion
-    SRCS ${_msf_srcs}
-    DEPS
-        cyber
-        apollo_perception_common_base
-        apollo_perception_common_algorithm
-        apollo_perception_common_hdmap
-        apollo_perception_common_lib
-        apollo_perception_common_onboard
-        perception_gflags
-        perception_common_util
-        ${_msf_proto_deps}
-        Boost::headers
-        absl
-        eigen
-    COPTS -DMODULE_NAME="perception"
+add_library(multi_sensor_fusion_component SHARED)
+target_sources(multi_sensor_fusion_component
+PRIVATE
+	multi_sensor_fusion_component.cc
+	base/scene.cc
+	base/sensor.cc
+	base/sensor_data_manager.cc
+	base/sensor_frame.cc
+	base/sensor_object.cc
+	base/track.cc
+	base/track_pool_types.cc
+	common/camera_util.cc
+	common/dst_evidence.cc
+	common/information_filter.cc
+	common/kalman_filter.cc
+	fusion/data_association/hm_data_association/hm_tracks_objects_match.cc
+	fusion/data_association/hm_data_association/probabilities.cc
+	fusion/data_association/hm_data_association/track_object_distance.cc
+	fusion/data_association/hm_data_association/track_object_similarity.cc
+	fusion/data_fusion/existence_fusion/dst_existence_fusion/dst_existence_fusion.cc
+	fusion/data_fusion/motion_fusion/kalman_motion_fusion/kalman_motion_fusion.cc
+	fusion/data_fusion/shape_fusion/pbf_shape_fusion/pbf_shape_fusion.cc
+	fusion/data_fusion/tracker/pbf_tracker/pbf_tracker.cc
+	fusion/data_fusion/type_fusion/dst_type_fusion/dst_type_fusion.cc
+	fusion/dummy/dummy_algorithms.cc
+	fusion/fusion_system/probabilistic_fusion/probabilistic_fusion.cc
+	fusion/gatekeeper/pbf_gatekeeper/pbf_gatekeeper.cc
+	proto/dst_existence_fusion_config.pb.cc
+	proto/pbf_tracker_config.pb.cc
+	proto/pbf_gatekeeper_config.pb.cc
+	proto/fusion_component_config.pb.cc
+	proto/probabilistic_fusion_config.pb.cc
+	proto/dst_type_fusion_config.pb.cc
 )
-
-# ── Component .so ──
-apollo_component(
-    NAME libmulti_sensor_fusion.so
-    SRCS multi_sensor_fusion_component.cc
-    HDRS multi_sensor_fusion_component.h
-    DEPS
-        apollo_perception_multi_sensor_fusion
-        cyber
-        apollo_perception_common_base
-        apollo_perception_common_hdmap
-        apollo_perception_common_lib
-        apollo_perception_common_onboard
-        ${_msf_proto_deps}
-        eigen
-    COPTS -DMODULE_NAME="perception"
+# target_compile_definitions(multi_sensor_fusion_component
+# PUBLIC
+#     MODULE_NAME="multi_sensor_fusion"
+# )
+target_link_libraries(multi_sensor_fusion_component
+PUBLIC
+	cyber
+	msg_proto
+	modules_common
+	perception_common
+	Eigen3::Eigen
+)
+install(TARGETS multi_sensor_fusion_component
+	ARCHIVE DESTINATION lib
+	LIBRARY DESTINATION lib
+	RUNTIME DESTINATION bin
 )

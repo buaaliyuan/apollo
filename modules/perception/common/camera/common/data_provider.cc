@@ -14,7 +14,7 @@
  * limitations under the License.
  *****************************************************************************/
 #include "modules/perception/common/camera/common/data_provider.h"
-
+#include "modules/perception/common/inference/utils/cuda_util.h"
 #include "cyber/common/log.h"
 #include "modules/perception/common/camera/common/image_data_operations.h"
 

@@ -16,6 +16,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 option(APOLLO_BUILD_CYBER   "Build CyberRT module"              ON)
 option(APOLLO_BUILD_MODULES "Build Apollo modules"              ON)
 option(APOLLO_BUILD_FRONTEND "Build frontend (dreamview/dreamview_plus)" OFF)
+option(APOLLO_USE_GPU "Use GPU for perception and planning" ON)
 
 add_compile_options(
     -Wall

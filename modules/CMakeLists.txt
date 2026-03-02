@@ -16,20 +16,20 @@ add_subdirectory(transform)
 add_subdirectory(drivers)          # drivers/canbus base library + all driver components
 
 # ── Level-2: Depends on transform/drivers ──
-# add_subdirectory(map)
-# add_subdirectory(routing)
+add_subdirectory(map)
+add_subdirectory(routing)
 
 # ── Level-3: Simpler application modules ──
-# add_subdirectory(guardian)
-# add_subdirectory(bridge)
-# add_subdirectory(storytelling)
-# add_subdirectory(canbus)
+add_subdirectory(guardian)
+add_subdirectory(bridge)
+add_subdirectory(storytelling)
+add_subdirectory(canbus)
 # add_subdirectory(canbus_vehicle)   # vehicle CAN plugins (ch, devkit, ge3, etc.)
-# add_subdirectory(audio)
-# add_subdirectory(third_party_perception)
+add_subdirectory(audio)
+add_subdirectory(third_party_perception)
 
 # ── Level-4: Heavy algorithm modules ──
-# add_subdirectory(perception)
+add_subdirectory(perception)
 # add_subdirectory(localization)
 # add_subdirectory(prediction)
 # add_subdirectory(control)

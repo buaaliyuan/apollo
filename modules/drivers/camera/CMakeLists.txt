@@ -10,7 +10,7 @@ PRIVATE
     msg_proto
 
 )
-
+set_target_properties(camera_component PROPERTIES CUDA_ARCHITECTURES "80;86")
 target_compile_options(camera_component PRIVATE -fopenmp -mavx2 -mavx)
 install(TARGETS camera_component
     RUNTIME DESTINATION bin

@@ -1,61 +1,56 @@
-# ============================================================================
-# modules/perception/lidar_tracking/CMakeLists.txt
-# Component: liblidar_tracking_component.so
-# ============================================================================
-
-# ── Protos ──
-file(GLOB_RECURSE _lt_protos "${CMAKE_CURRENT_SOURCE_DIR}/*.proto")
-foreach(_proto ${_lt_protos})
-    file(RELATIVE_PATH _rel_proto "${CMAKE_CURRENT_SOURCE_DIR}" "${_proto}")
-    string(REPLACE "/" "_" _rel_safe "${_rel_proto}")
-    string(REPLACE ".proto" "" _rel_safe "${_rel_safe}")
-    set(_proto_target "perception_lidar_tracking_${_rel_safe}_cc_proto")
-    apollo_proto_library(
-        NAME ${_proto_target}
-        SRCS ${_proto}
-    )
-endforeach()
-
-# ── Main library ──
-file(GLOB_RECURSE _lt_srcs "${CMAKE_CURRENT_SOURCE_DIR}/*.cc")
-list(FILTER _lt_srcs EXCLUDE REGEX ".*_test\\.cc$")
-list(FILTER _lt_srcs EXCLUDE REGEX ".*_component\\.cc$")
-
-# Collect proto targets
-set(_lt_proto_deps)
-foreach(_proto ${_lt_protos})
-    file(RELATIVE_PATH _rel "${CMAKE_CURRENT_SOURCE_DIR}" "${_proto}")
-    string(REPLACE "/" "_" _rs "${_rel}")
-    string(REPLACE ".proto" "" _rs "${_rs}")
-    list(APPEND _lt_proto_deps "perception_lidar_tracking_${_rs}_cc_proto")
-endforeach()
-
-apollo_cc_library(
-    NAME apollo_perception_lidar_tracking
-    SRCS ${_lt_srcs}
-    DEPS
-        cyber
-        apollo_perception_common_base
-        apollo_perception_common_algorithm
-        apollo_perception_common_lib
-        apollo_perception_common_lidar
-        apollo_perception_common_onboard
-        perception_gflags
-        perception_common_util
-        ${_lt_proto_deps}
-        eigen
-    COPTS -DMODULE_NAME="perception"
+add_library(lidar_tracking_component SHARED)
+target_sources(lidar_tracking_component
+PRIVATE
+	lidar_tracking_component.cc
+	classifier/fused_classifier/ccrf_type_fusion.cc
+	classifier/fused_classifier/fused_classifier.cc
+	classifier/fused_classifier/util.cc
+	tracker/association/distance_collection.cc
+	tracker/association/gnn_bipartite_graph_matcher.cc
+	tracker/association/multi_hm_bipartite_graph_matcher.cc
+	tracker/common/mlf_track_data.cc
+	tracker/common/track_data.cc
+	tracker/common/track_pool_types.cc
+	tracker/common/tracked_object.cc
+	tracker/measurement/measurement_collection.cc
+	tracker/multi_lidar_fusion/mlf_engine.cc
+	tracker/multi_lidar_fusion/mlf_motion_filter.cc
+	tracker/multi_lidar_fusion/mlf_motion_measurement.cc
+	tracker/multi_lidar_fusion/mlf_motion_refiner.cc
+	tracker/multi_lidar_fusion/mlf_shape_filter.cc
+	tracker/multi_lidar_fusion/mlf_track_object_distance.cc
+	tracker/multi_lidar_fusion/mlf_track_object_matcher.cc
+	tracker/multi_lidar_fusion/mlf_tracker.cc
+	tracker/multi_lidar_fusion/mlf_type_filter.cc
+	tracker/multi_lidar_fusion/mlf_direction_filter.cc
+	tracker/multi_lidar_fusion/util.cc
+	tracker/type_fusion/ccrf_type_fusion.cc
+	tracker/type_fusion/util.cc
+	proto/lidar_tracking_component_config.pb.cc
+	classifier/fused_classifier/proto/ccrf_type_fusion_config.pb.cc
+	classifier/fused_classifier/proto/fused_classifier_config.pb.cc
+	tracker/type_fusion/proto/ccrf_type_filter_config.pb.cc
+	tracker/multi_lidar_fusion/proto/multi_lidar_fusion_config.pb.cc
 )
-
-# ── Component .so ──
-apollo_component(
-    NAME liblidar_tracking_component.so
-    SRCS lidar_tracking_component.cc
-    HDRS lidar_tracking_component.h
-    DEPS
-        apollo_perception_lidar_tracking
-        cyber
-        apollo_perception_common_onboard
-    COPTS -DMODULE_NAME="perception"
-    LINKOPTS -lleveldb
+target_include_directories(lidar_tracking_component
+PUBLIC
+	${CUDA_INCLUDE_DIRS}
+)
+# target_compile_definitions(lidar_tracking_component
+# PUBLIC
+#     MODULE_NAME="lidar_tracking"
+# )
+target_link_libraries(lidar_tracking_component
+PUBLIC
+	cyber
+	msg_proto
+	modules_common
+	perception_common
+	Eigen3::Eigen
+	leveldb
+)
+install(TARGETS lidar_tracking_component
+	ARCHIVE DESTINATION lib
+	LIBRARY DESTINATION lib
+	RUNTIME DESTINATION bin
 )
