@@ -1,0 +1,14 @@
+file(GLOB_RECURSE LOCALIZATION_COMMON_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cc")
+list(FILTER LOCALIZATION_COMMON_SOURCES EXCLUDE REGEX ".*_test\\.cc$")
+
+add_library(localization_common_object SHARED ${LOCALIZATION_COMMON_SOURCES})
+target_link_libraries(localization_common_object
+PUBLIC
+    cyber
+)
+
+install(TARGETS localization_common_object
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)

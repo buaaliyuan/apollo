@@ -30,8 +30,8 @@ add_subdirectory(third_party_perception)
 
 # ── Level-4: Heavy algorithm modules ──
 add_subdirectory(perception)
-# add_subdirectory(localization)
-# add_subdirectory(prediction)
+add_subdirectory(localization)
+add_subdirectory(prediction)
 # add_subdirectory(control)
 # add_subdirectory(planning)
 
