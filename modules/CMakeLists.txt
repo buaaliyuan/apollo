@@ -32,8 +32,8 @@ add_subdirectory(third_party_perception)
 add_subdirectory(perception)
 add_subdirectory(localization)
 add_subdirectory(prediction)
-# add_subdirectory(control)
-# add_subdirectory(planning)
+add_subdirectory(control)
+add_subdirectory(planning)
 
 # ── Level-5: Modules with cross-deps ──
 # add_subdirectory(external_command)

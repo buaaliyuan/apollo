@@ -31,7 +31,7 @@
 #include "ad_rss/situation/SituationVector.hpp"
 #include "ad_rss/state/ResponseState.hpp"
 #include "ad_rss/state/ResponseStateVector.hpp"
-#include "situation/RSSFormulas.hpp"
+#include "ad_rss/situation/RSSFormulas.hpp"
 #include "modules/planning/tasks/rss_decider/proto/rss_decider.pb.h"
 #include "cyber/plugin_manager/plugin_manager.h"
 #include "modules/planning/planning_interface_base/task_base/task.h"

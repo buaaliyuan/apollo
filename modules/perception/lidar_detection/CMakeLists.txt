@@ -52,3 +52,6 @@ install(TARGETS lidar_detection_component
 	LIBRARY DESTINATION lib
 	RUNTIME DESTINATION bin
 )
+set_target_properties(lidar_detection_component PROPERTIES
+    CUDA_ARCHITECTURES "80;86" 
+)

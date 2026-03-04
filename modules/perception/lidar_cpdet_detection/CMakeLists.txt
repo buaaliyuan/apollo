@@ -35,3 +35,6 @@ install(TARGETS lidar_cpdet_detection_component
 	RUNTIME DESTINATION bin
 )
 
+set_target_properties(lidar_cpdet_detection_component PROPERTIES
+    CUDA_ARCHITECTURES "80;86" 
+)

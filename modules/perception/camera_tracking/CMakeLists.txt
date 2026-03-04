@@ -36,3 +36,6 @@ install(TARGETS camera_tracking_component
 	LIBRARY DESTINATION lib
 	RUNTIME DESTINATION bin
 )
+set_target_properties(camera_tracking_component PROPERTIES
+    CUDA_ARCHITECTURES "80;86" 
+)
