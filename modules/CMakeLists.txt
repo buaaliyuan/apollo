@@ -34,18 +34,19 @@ add_subdirectory(localization)
 add_subdirectory(prediction)
 add_subdirectory(control)
 add_subdirectory(planning)
+add_subdirectory(prediction_plugin)
 
 # ── Level-5: Modules with cross-deps ──
-# add_subdirectory(external_command)
+add_subdirectory(external_command)
 # add_subdirectory(v2x)
 
 # ── Level-6: Dreamview (depends on many modules) ──
-# add_subdirectory(dreamview)
-# add_subdirectory(dreamview_plus)
+add_subdirectory(dreamview)
+add_subdirectory(dreamview_plus)
 
 # ── Level-7: Monitor & Task Manager (depend on dreamview) ──
-# add_subdirectory(monitor)
-# add_subdirectory(task_manager)
+add_subdirectory(monitor)
+add_subdirectory(task_manager)
 
 # ── Level-8: Statistics & contrib ──
 # add_subdirectory(statistics)

@@ -8,7 +8,6 @@ PRIVATE
     proto/pointcloud_motion_component_config.pb.cc
 )
 
-message(STATUS "==== TORCH INCLUDE_DIRS: ${TORCH_INCLUDE_DIRS}")
 target_include_directories(pointcloud_motion_component
 PUBLIC
     ${CUDA_INCLUDE_DIRS}
@@ -28,4 +27,7 @@ install(TARGETS pointcloud_motion_component
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin
+)
+set_target_properties(pointcloud_motion_component PROPERTIES
+    CUDA_ARCHITECTURES "80;86" 
 )

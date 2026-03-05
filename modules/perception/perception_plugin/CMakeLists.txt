@@ -25,6 +25,9 @@ if(APOLLO_USE_GPU AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/lidar_detection/gpu_do
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION bin
     )
+    set_target_properties(gpu_down_sample PROPERTIES
+        CUDA_ARCHITECTURES "80;86"
+    )
 endif()
 
 # ── inference/onnx_multi_batch plugin (GPU only) ──

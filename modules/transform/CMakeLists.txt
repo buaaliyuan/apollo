@@ -1,6 +1,6 @@
 file(GLOB_RECURSE TRANSFORM_SOURCES "*.cc")
 list(FILTER TRANSFORM_SOURCES EXCLUDE REGEX ".*_test.cc$")
-add_library(static_transform_component MODULE ${TRANSFORM_SOURCES})
+add_library(static_transform_component SHARED ${TRANSFORM_SOURCES})
 target_compile_definitions(static_transform_component 
 PRIVATE 
     MODULE_NAME="transform"

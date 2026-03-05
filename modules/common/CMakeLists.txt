@@ -9,6 +9,7 @@ PUBLIC
     gtest_headers
     msg_proto
     Eigen3::Eigen
+    Boost::filesystem
 )
 
 install(TARGETS modules_common

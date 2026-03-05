@@ -35,3 +35,6 @@ install(TARGETS camera_detection_multi_stage_component
 	LIBRARY DESTINATION lib
 	RUNTIME DESTINATION bin
 )
+set_target_properties(camera_detection_multi_stage_component PROPERTIES
+    CUDA_ARCHITECTURES "80;86" 
+)

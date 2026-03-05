@@ -1,51 +1,18 @@
-# ============================================================================
-# modules/task_manager/CMakeLists.txt
-# ============================================================================
-
-# ── Proto ──
-apollo_proto_library(
-    NAME task_manager_config_cc_proto
-    SRCS proto/task_manager_config.proto
+file(GLOB_RECURSE MODULES_SRC_FILES
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.cc"
 )
 
-# ── apollo_task_manager library ──
-apollo_cc_library(
-    NAME apollo_task_manager
-    SRCS
-        common/task_manager_gflags.cc
-        cycle_routing_manager.cc
-        parking_routing_manager.cc
-    HDRS
-        common/task_manager_gflags.h
-        cycle_routing_manager.h
-        parking_routing_manager.h
-        task_manager_component.h
-    DEPS
-        cyber
-        monitor_log
-        status
-        command_status_cc_proto
-        lane_follow_command_cc_proto
-        localization_cc_proto
-        routing_cc_proto
-        task_manager_cc_proto
-        task_manager_config_cc_proto
-        gflags
-    COPTS -DMODULE_NAME="task_manager"
-)
+list(FILTER MODULES_SRC_FILES EXCLUDE REGEX ".*_test.cc$")
 
-# ── task_manager_component ──
-apollo_component(
-    NAME libtask_manager_component.so
-    SRCS task_manager_component.cc
-    HDRS task_manager_component.h
-    DEPS
-        apollo_task_manager
-        cyber
-        command_status_cc_proto
-        lane_follow_command_cc_proto
-        planning_cc_proto
-        routing_cc_proto
-        task_manager_config_cc_proto
-    COPTS -DMODULE_NAME="task_manager"
+add_library(task_manager_component SHARED ${MODULES_SRC_FILES})
+target_link_libraries(task_manager_component 
+PRIVATE
+    cyber
+    msg_proto
+    modules_common
+)
+install(TARGETS task_manager_component
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
 )
