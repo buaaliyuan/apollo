@@ -1,6 +1,7 @@
 add_library(guardian_component 
 SHARED
     guardian_component.cc
+    proto/guardian_conf.pb.cc
 )
 
 target_link_libraries(guardian_component

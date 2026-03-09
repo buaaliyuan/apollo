@@ -5,6 +5,7 @@ PRIVATE
     common/storytelling_gflags.cc
     story_tellers/close_to_junction_teller.cc
     proto/storytelling_config.pb.cc
+    ./frame_manager.cc
 )
 
 target_compile_definitions(storytelling_component

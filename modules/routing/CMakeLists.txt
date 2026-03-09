@@ -28,6 +28,7 @@ target_link_libraries(routing_component
     modules_common
     msg_proto
     Boost::filesystem
+    apollo_map
 )
 
 target_compile_definitions(routing_component

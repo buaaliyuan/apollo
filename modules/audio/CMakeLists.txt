@@ -19,11 +19,13 @@ PUBLIC
     msg_proto
     modules_common
     ${TORCH_LIBRARIES}
+    yaml-cpp
 )
 
 target_compile_options(audio_component
 PUBLIC
-    -fopenmp)
+    -fopenmp
+)
 
 install(TARGETS audio_component
     ARCHIVE DESTINATION lib
