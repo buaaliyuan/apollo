@@ -1,0 +1,4 @@
+[submodule "modules/custom_drivers"]
+	path = modules/custom_drivers
+	url = git@gitlab.zhito.com:drivers/drivers.git
+	branch = urban-dev

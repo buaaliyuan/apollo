@@ -24,6 +24,9 @@ PUBLIC
 	perception_common
 	Eigen3::Eigen
 	leveldb
+	yaml-cpp
+	${TORCH_LIBRARIES}
+	static_transform_component
 )
 
 install(TARGETS barrier_recognition_component
