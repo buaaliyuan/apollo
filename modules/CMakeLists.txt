@@ -13,8 +13,8 @@ add_subdirectory(common)
 
 # ── Level-1: Core infrastructure (no inter-module deps) ──
 add_subdirectory(transform)
-add_subdirectory(drivers)          # drivers/canbus base library + all driver components
-
+# add_subdirectory(drivers)          # drivers/canbus base library + all driver components
+add_subdirectory(custom_drivers)
 # ── Level-2: Depends on transform/drivers ──
 add_subdirectory(map)
 add_subdirectory(routing) # 启动测试通过
