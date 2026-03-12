@@ -1,5 +1,5 @@
 module_config {
-  module_library : "modules/perception/multi_sensor_fusion/libmulti_sensor_fusion.so"
+  module_library : "libmulti_sensor_fusion_component.so"
   components {
     class_name : "MultiSensorFusionComponent"
     config {

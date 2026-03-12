@@ -34,7 +34,7 @@ export APOLLO_SYSROOT_DIR="/opt/apollo/sysroot"
 
 export APOLLO_DAG_PATH="${APOLLO_ROOT_DIR}"
 # export APOLLO_LIB_PATH="${APOLLO_ROOT_DIR}/bazel-bin"
-export APOLLO_LIB_PATH="${APOLLO_ROOT_DIR}" # dag动态库加载路径修改
+export APOLLO_LIB_PATH="${APOLLO_ROOT_DIR}:${APOLLO_ROOT_DIR}/lib" # dag动态库加载路径修改
 export APOLLO_CONF_PATH="${APOLLO_ROOT_DIR}"
 export APOLLO_FLAG_PATH="${APOLLO_ROOT_DIR}"
 export APOLLO_LAUNCH_PATH="${APOLLO_ROOT_DIR}"

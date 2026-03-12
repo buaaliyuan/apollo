@@ -30,6 +30,10 @@ PUBLIC
     paddle_inference
     tf2
     Eigen3::Eigen
+    yaml-cpp
+    ${TORCH_LIBRARIES}
+    apollo_map
+    Boost::thread
 )
 
 target_compile_definitions(perception_common

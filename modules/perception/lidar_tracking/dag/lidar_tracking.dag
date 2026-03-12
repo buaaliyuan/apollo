@@ -1,5 +1,5 @@
 module_config {
-  module_library : "modules/perception/lidar_tracking/liblidar_tracking_component.so"
+  module_library : "liblidar_tracking_component.so"
   components {
     class_name : "LidarTrackingComponent"
     config {
