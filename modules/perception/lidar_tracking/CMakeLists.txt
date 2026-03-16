@@ -54,3 +54,7 @@ install(TARGETS lidar_tracking_component
 	LIBRARY DESTINATION lib
 	RUNTIME DESTINATION bin
 )
+install(DIRECTORY conf DESTINATION /apollo/output/modules/perception/lidar_tracking)
+install(DIRECTORY dag DESTINATION /apollo/output/modules/perception/lidar_tracking)
+install(DIRECTORY data DESTINATION /apollo/output/modules/perception/lidar_tracking)
+install(DIRECTORY proto DESTINATION /apollo/output/modules/perception/lidar_tracking)

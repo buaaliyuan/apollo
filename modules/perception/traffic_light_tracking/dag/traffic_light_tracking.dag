@@ -1,5 +1,5 @@
 module_config {
-  module_library : "modules/perception/traffic_light_tracking/libcomponent_traffic_light_tracking.so"
+  module_library : "libtraffic_light_tracking_component.so"
 
   components {
     class_name : "TrafficLightTrackComponent"

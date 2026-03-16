@@ -55,6 +55,9 @@ if(APOLLO_USE_GPU AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/inference/onnx_multi_b
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION bin
     )
+    install(FILES inference/onnx_multi_batch/plugins.xml
+        DESTINATION modules/perception/perception_plugin/inference/onnx_multi_batch
+    )
 endif()
 
 # ── lidar_detection_filter/bigmot_refine_filter plugin ──

@@ -16,6 +16,7 @@ PUBLIC
 	msg_proto
 	modules_common
 	perception_common
+	static_transform_component
 	Eigen3::Eigen
 )
 install(TARGETS traffic_light_region_proposal_component
@@ -23,3 +24,6 @@ install(TARGETS traffic_light_region_proposal_component
 	LIBRARY DESTINATION lib
 	RUNTIME DESTINATION bin
 )
+install(DIRECTORY conf DESTINATION  /apollo/output/modules/perception/traffic_light_region_proposal)
+install(DIRECTORY dag  DESTINATION  /apollo/output/modules/perception/traffic_light_region_proposal)
+install(DIRECTORY proto DESTINATION /apollo/output/modules/perception/traffic_light_region_proposal)

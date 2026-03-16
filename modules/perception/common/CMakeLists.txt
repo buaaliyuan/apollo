@@ -23,17 +23,20 @@ PUBLIC
 )
 target_link_libraries(perception_common
 PUBLIC
-    cyber
-    msg_proto
-    modules_common
-    ${OpenCV_LIBS}
-    paddle_inference
-    tf2
-    Eigen3::Eigen
-    yaml-cpp
-    ${TORCH_LIBRARIES}
-    apollo_map
-    Boost::thread
+	cyber
+	msg_proto
+	modules_common
+	${OpenCV_LIBS}
+	paddle_inference
+	tf2
+	Eigen3::Eigen
+	yaml-cpp
+	${TORCH_LIBRARIES}
+	apollo_map
+	Boost::thread
+	nppidei
+	nppicc
+	nppig
 )
 
 target_compile_definitions(perception_common

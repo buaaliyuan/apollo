@@ -1,5 +1,5 @@
 module_config {
-  module_library : "modules/perception/traffic_light_recognition/libcomponent_traffic_light_recognition.so"
+  module_library : "libtraffic_light_recognition_component.so"
 
   components {
     class_name : "TrafficLightRecognComponent"

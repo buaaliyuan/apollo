@@ -27,3 +27,7 @@ install(TARGETS traffic_light_detection_component
 	LIBRARY DESTINATION lib
 	RUNTIME DESTINATION bin
 )
+install(DIRECTORY conf DESTINATION /apollo/output/modules/perception/traffic_light_detection)
+install(DIRECTORY dag  DESTINATION /apollo/output/modules/perception/traffic_light_detection)
+install(DIRECTORY data DESTINATION /apollo/output/modules/perception/traffic_light_detection)
+install(DIRECTORY proto DESTINATION /apollo/output/modules/perception/traffic_light_detection)

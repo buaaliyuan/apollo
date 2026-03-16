@@ -49,3 +49,7 @@ install(TARGETS multi_sensor_fusion_component
 	LIBRARY DESTINATION lib
 	RUNTIME DESTINATION bin
 )
+install(DIRECTORY conf DESTINATION /apollo/output/modules/perception/multi_sensor_fusion)
+install(DIRECTORY dag DESTINATION /apollo/output/modules/perception/multi_sensor_fusion)
+install(DIRECTORY data DESTINATION /apollo/output/modules/perception/multi_sensor_fusion)
+install(DIRECTORY proto DESTINATION /apollo/output/modules/perception/multi_sensor_fusion)

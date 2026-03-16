@@ -66,3 +66,5 @@ add_subdirectory(barrier_recognition)
 
 # ── 13. Perception plugins (must come after lidar_detection_filter, lidar_segmentation) ──
 add_subdirectory(perception_plugin)
+
+install(DIRECTORY data DESTINATION /apollo/output/modules/perception)
